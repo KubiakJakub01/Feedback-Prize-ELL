@@ -1,7 +1,9 @@
 # Install torch and torchvision with compatibile cuda version
-torch=2.0.0+cu117
---extra-index-url https://download.pytorch.org/whl/nightly/cu117
+--find-links https://download.pytorch.org/whl/cu117/torch_stable.html
+torch==1.13.1+cu117
+torchvision==0.13.1+cu117
+torchaudio==0.13.1+cu117
 
 # Install huggingface transformers
-transformers=4.26.0
-evluate=0.4.0
+transformers==4.26.0
+evluate==0.4.0
