@@ -15,6 +15,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
+# Import huggingface
+from transformers import BertTokenizer, BertModel, BertForSequenceClassification
+
 # Set up logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s',
