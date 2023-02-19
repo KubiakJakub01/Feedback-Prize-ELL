@@ -8,6 +8,8 @@ import os
 import sys
 import time
 import logging
+from pathlib import Path
+from datetime import datetime
 
 # Import torch
 import torch
@@ -52,4 +54,12 @@ def get_args():
 
 
 if __name__ == "__main__":
-    pass
+    # Get command line arguments
+    args = get_args()
+    MODEL_PATH = Path(args.mode_path)
+    MODEL_NAME = MODEL_PATH.name
+
+    # Get start time of training with format yyyy-mm-dd hh:mm:ss
+    start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    experiment_name = f"{MODEL_NAME}_{start_time}"
+    logger.info("Starting training at {}".format(start_time))
