@@ -50,6 +50,12 @@ def get_args():
         default="data/valid.csv",
         help="Path to validation data",
     )
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default="models",
+        help="Path to save model checkpoints",
+    )
     return parser.parse_args()
 
 
@@ -63,3 +69,6 @@ if __name__ == "__main__":
     start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     experiment_name = f"{MODEL_NAME}_{start_time}"
     logger.info("Starting training at {}".format(start_time))
+
+    # Define save path
+    SAVE_PATH = Path(args.save_path) / experiment_name
