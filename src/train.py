@@ -66,9 +66,9 @@ if __name__ == "__main__":
     MODEL_NAME = MODEL_PATH.name
 
     # Get start time of training with format yyyy-mm-dd hh:mm:ss
-    start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    experiment_name = f"{MODEL_NAME}_{start_time}"
-    logger.info("Starting training at {}".format(start_time))
+    START_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    EXPERIMENT_NAME = f"{MODEL_NAME}_{START_TIME}"
+    logger.info("Starting training at {}".format(START_TIME))
 
     # Define save path
-    SAVE_PATH = Path(args.save_path) / experiment_name
+    SAVE_PATH = Path(args.save_path) / EXPERIMENT_NAME
