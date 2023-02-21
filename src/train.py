@@ -20,6 +20,9 @@ from torch.utils.data import DataLoader
 # Import huggingface
 from transformers import BertTokenizer, BertModel, BertForSequenceClassification
 
+# Import custom modules
+from utils.data import TextDataset
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
@@ -57,6 +60,18 @@ def get_args():
         help="Path to save model checkpoints",
     )
     return parser.parse_args()
+
+def train(args):
+    """
+    Train a model.
+    """
+    # Define device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Load tokenizer
+    tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
+
+
 
 
 if __name__ == "__main__":
