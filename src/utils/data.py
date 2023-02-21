@@ -10,18 +10,19 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-import torch
+from torch import tensor, float32
 from torch.utils.data import Dataset
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 class TextDataset(Dataset):
     """
     Dataset for text classification.
     """
 
-    def __init__(self, data_path, tokenizer, numberic_col_list, max_len=128):
+    def __init__(self, data_path, tokenizer, text_col, numberic_col_list, max_len=128):
         """
         Args:
             data_path (str): Path to data.
@@ -30,6 +31,7 @@ class TextDataset(Dataset):
         """
         self.data = pd.read_csv(data_path)
         self.tokenizer = tokenizer
+        self.text_col = text_col
         self.numberic_col_list = numberic_col_list.copy()
         self.max_len = max_len
 
@@ -44,7 +46,7 @@ class TextDataset(Dataset):
         Returns:
             dict: Dictionary containing input_ids, attention_mask, and labels.
         """
-        text = self.data.loc[idx, "full_text"]
+        text = self.data.loc[idx, self.text_col]
         labels = self.data.loc[idx, self.numberic_col_list]
 
         encoding = self.tokenizer.encode_plus(
@@ -61,5 +63,5 @@ class TextDataset(Dataset):
             "text": text,
             "input_ids": encoding["input_ids"].flatten(),
             "attention_mask": encoding["attention_mask"].flatten(),
-            "labels": torch.tensor(labels, dtype=torch.float),
+            "labels": tensor(labels, dtype=float32),
         }
