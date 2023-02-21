@@ -59,6 +59,18 @@ def get_args():
         default="models",
         help="Path to save model checkpoints",
     )
+    parser.add_argument(
+        "--label_cols", 
+        nargs="+", 
+        default=["cohesion", "syntax", "vocabulary", "phraseology", "grammar", "conventions"], 
+        help="List of label columns"
+    )
+    parser.add_argument(
+        "--epochs", type=int, default=10, help="Number of epochs to train for"
+    )
+    parser.add_argument(
+        "--batch_size", type=int, default=32, help="Batch size for training"
+    )
     return parser.parse_args()
 
 def train(args):
