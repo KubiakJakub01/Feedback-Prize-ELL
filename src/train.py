@@ -60,6 +60,9 @@ def get_args():
         help="Path to save model checkpoints",
     )
     parser.add_argument(
+        "--text_col", type=str, default="full_text", help="Name of text column"
+    )
+    parser.add_argument(
         "--label_cols", 
         nargs="+", 
         default=["cohesion", "syntax", "vocabulary", "phraseology", "grammar", "conventions"], 
@@ -80,13 +83,14 @@ def train(args):
     """
     Train a model.
     """
-    # Define device
+    # Get environment variables
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
+
+    # Define device
     if args.ddp:
         # Initialize distributed training
         torch.distributed.init_process_group(backend="nccl")
-        # Define device
         if torch.cuda.is_available():
             device = f"cuda:{local_rank}"
         else:
@@ -96,6 +100,15 @@ def train(args):
 
     # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
+
+    # Load training data
+    train_dataset = TextDataset(
+        data_path=args.train_data_path, 
+        tokenizer=tokenizer, 
+        text_col=args.text_col,
+        numberic_col_list=args.label_cols, 
+        max_length=512
+    )
 
 
 
