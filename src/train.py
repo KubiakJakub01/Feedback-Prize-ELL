@@ -16,6 +16,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 
 # Import huggingface
 from transformers import BertTokenizer, BertModel, BertForSequenceClassification
@@ -120,6 +121,21 @@ def train(args):
         text_col=args.text_col,
         numberic_col_list=args.label_cols,
         max_length=args.max_length
+    )
+
+    # Define data loaders
+    if args.ddp:
+        train_sampler = DistributedSampler(train_dataset)
+        valid_sampler = DistributedSampler(valid_dataset)
+    
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=(train_sampler is None),
+        sampler=train_sampler,
+        num_workers=4,
+        pin_memory=True,
+        drop_last=True,
     )
 
 
