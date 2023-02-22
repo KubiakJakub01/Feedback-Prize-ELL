@@ -138,6 +138,15 @@ def train(args):
         drop_last=True,
     )
 
+    valid_loader = DataLoader(
+        valid_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        sampler=valid_sampler,
+        num_workers=4,
+        pin_memory=True,
+        drop_last=False,
+    )
 
 if __name__ == "__main__":
     # Get command line arguments
