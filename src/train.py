@@ -75,6 +75,9 @@ def get_args():
         "--batch_size", type=int, default=32, help="Batch size for training"
     )
     parser.add_argument(
+        "--max_length", type=int, default=512, help="Maximum length of text"
+    )
+    parser.add_argument(
         "--ddp", action="store_true", help="Use distributed data parallel"
     )
     return parser.parse_args()
@@ -107,9 +110,17 @@ def train(args):
         tokenizer=tokenizer, 
         text_col=args.text_col,
         numberic_col_list=args.label_cols, 
-        max_length=512
+        max_length=args.max_length
     )
 
+    # Load validation data
+    valid_dataset = TextDataset(
+        data_path=args.valid_data_path,
+        tokenizer=tokenizer,
+        text_col=args.text_col,
+        numberic_col_list=args.label_cols,
+        max_length=args.max_length
+    )
 
 
 if __name__ == "__main__":
