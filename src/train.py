@@ -71,6 +71,9 @@ def get_args():
     parser.add_argument(
         "--batch_size", type=int, default=32, help="Batch size for training"
     )
+    parser.add_argument(
+        "--ddp", action="store_true", help="Use distributed data parallel"
+    )
     return parser.parse_args()
 
 def train(args):
@@ -78,11 +81,21 @@ def train(args):
     Train a model.
     """
     # Define device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    world_size = int(os.environ.get("WORLD_SIZE", 1))
+    local_rank = int(os.environ.get("LOCAL_RANK", 0))
+    if args.ddp:
+        # Initialize distributed training
+        torch.distributed.init_process_group(backend="nccl")
+        # Define device
+        if torch.cuda.is_available():
+            device = f"cuda:{local_rank}"
+        else:
+            raise ValueError("Distributed training is only supported on GPUs")
+    else:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
-
 
 
 
