@@ -11,10 +11,59 @@ import pandas as pd
 import numpy as np
 
 from torch import tensor, float32
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.distributed import DistributedSampler
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+
+def create_data_loader(
+    data_path,
+    tokenizer,
+    text_col,
+    numberic_col_list,
+    max_length,
+    ddp,
+    batch_size,
+    num_workers,
+    pin_memory,
+    drop_last,
+):
+    """
+    Create a data loader for a given dataset.
+
+    Args:
+        df (pd.DataFrame): Dataframe containing data.
+        tokenizer (BertTokenizer): Tokenizer for encoding text.
+        max_len (int): Maximum length of a sequence.
+        batch_size (int): Number of samples per batch.
+
+    Returns:
+        DataLoader: PyTorch data loader.
+    """
+    text_dataset = TextDataset(
+        data_path=data_path,
+        tokenizer=tokenizer,
+        text_col=text_col,
+        numberic_col_list=numberic_col_list,
+        max_length=max_length,
+    )
+
+    if ddp:
+        data_sampler = DistributedSampler(text_dataset)
+
+    data_loader = DataLoader(
+        text_dataset,
+        batch_size=batch_size,
+        shuffle=(data_sampler is None),
+        sampler=data_sampler,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
+        drop_last=drop_last,
+    )
+
+    return data_loader
 
 
 class TextDataset(Dataset):
