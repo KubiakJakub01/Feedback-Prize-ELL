@@ -22,7 +22,7 @@ from torch.utils.data.distributed import DistributedSampler
 from transformers import BertTokenizer, BertModel, BertForSequenceClassification
 
 # Import custom modules
-from utils.data import TextDataset
+from utils.data import TextDataset, create_data_loader
 
 # Set up logging
 logging.basicConfig(
@@ -105,48 +105,34 @@ def train(args):
     # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
 
-    # Load training data
-    train_dataset = TextDataset(
-        data_path=args.train_data_path, 
-        tokenizer=tokenizer, 
+    # Load training dataloader
+    train_data_loader = create_data_loader(
+        data_path=args.train_data_path,
+        tokenizer=tokenizer,
         text_col=args.text_col,
-        numberic_col_list=args.label_cols, 
-        max_length=args.max_length
+        numberic_col_list=args.numberic_col_list,
+        max_length=args.max_length,
+        ddp=args.ddp,
+        batch_size=args.batch_size,
+        num_workers=4,
+        pin_memory=True,
+        drop_last=True
     )
 
-    # Load validation data
-    valid_dataset = TextDataset(
+    # Load validation dataloader
+    valid_data_loader = create_data_loader(
         data_path=args.valid_data_path,
         tokenizer=tokenizer,
         text_col=args.text_col,
-        numberic_col_list=args.label_cols,
-        max_length=args.max_length
-    )
-
-    # Define data loaders
-    if args.ddp:
-        train_sampler = DistributedSampler(train_dataset)
-        valid_sampler = DistributedSampler(valid_dataset)
-    
-    train_loader = DataLoader(
-        train_dataset,
+        numberic_col_list=args.numberic_col_list,
+        max_length=args.max_length,
+        ddp=args.ddp,
         batch_size=args.batch_size,
-        shuffle=(train_sampler is None),
-        sampler=train_sampler,
         num_workers=4,
         pin_memory=True,
-        drop_last=True,
+        drop_last=False
     )
 
-    valid_loader = DataLoader(
-        valid_dataset,
-        batch_size=args.batch_size,
-        shuffle=False,
-        sampler=valid_sampler,
-        num_workers=4,
-        pin_memory=True,
-        drop_last=False,
-    )
 
 if __name__ == "__main__":
     # Get command line arguments
