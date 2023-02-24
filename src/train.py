@@ -101,6 +101,9 @@ def train(args):
         if torch.cuda.is_available()
         else "cpu"
     )
+ 
+    # Load model
+    model = BertForSequenceClassification.from_pretrained(args.model_path)
 
     if args.ddp:
         # Initialize distributed training
