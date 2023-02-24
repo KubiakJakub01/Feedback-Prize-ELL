@@ -55,19 +55,23 @@ def get_args():
         help="Path to validation data",
     )
     parser.add_argument(
-        "--save_path",
-        type=str,
-        default="models",
-        help="Path to save model checkpoints",
+        "--save_path", type=str, default="models", help="Path to save model checkpoints"
     )
     parser.add_argument(
         "--text_col", type=str, default="full_text", help="Name of text column"
     )
     parser.add_argument(
-        "--label_cols", 
-        nargs="+", 
-        default=["cohesion", "syntax", "vocabulary", "phraseology", "grammar", "conventions"], 
-        help="List of label columns"
+        "--label_cols",
+        nargs="+",
+        default=[
+            "cohesion",
+            "syntax",
+            "vocabulary",
+            "phraseology",
+            "grammar",
+            "conventions",
+        ],
+        help="List of label columns",
     )
     parser.add_argument(
         "--epochs", type=int, default=10, help="Number of epochs to train for"
@@ -83,24 +87,24 @@ def get_args():
     )
     return parser.parse_args()
 
+
 def train(args):
     """
     Train a model.
     """
-    # Get environment variables
-    world_size = int(os.environ.get("WORLD_SIZE", 1))
-    local_rank = int(os.environ.get("LOCAL_RANK", 0))
 
     # Define device
+    device = (
+        f"cuda:{local_rank}"
+        if args.ddp
+        else "cuda"
+        if torch.cuda.is_available()
+        else "cpu"
+    )
+
     if args.ddp:
         # Initialize distributed training
         torch.distributed.init_process_group(backend="nccl")
-        if torch.cuda.is_available():
-            device = f"cuda:{local_rank}"
-        else:
-            raise ValueError("Distributed training is only supported on GPUs")
-    else:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
@@ -116,7 +120,7 @@ def train(args):
         batch_size=args.batch_size,
         num_workers=4,
         pin_memory=True,
-        drop_last=True
+        drop_last=True,
     )
 
     # Load validation dataloader
@@ -130,7 +134,7 @@ def train(args):
         batch_size=args.batch_size,
         num_workers=4,
         pin_memory=True,
-        drop_last=False
+        drop_last=False,
     )
 
 
@@ -147,3 +151,10 @@ if __name__ == "__main__":
 
     # Define save path
     SAVE_PATH = Path(args.save_path) / EXPERIMENT_NAME
+
+    # Get environment variables
+    world_size = int(os.environ.get("WORLD_SIZE", 1))
+    local_rank = int(os.environ.get("LOCAL_RANK", 0))
+
+    # Train model
+    train(args)
