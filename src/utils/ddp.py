@@ -34,3 +34,21 @@ def init_ddp(rank, world_size, backend="nccl"):
 
     # Set the device
     torch.cuda.set_device(rank)
+
+
+def if_main_process(func):
+    """
+    Decorator to run a function only on the main process.
+
+    Args:
+        func (function): Function to run.
+
+    Returns:
+        function: Decorated function.
+    """
+
+    def wrapper(*args, **kwargs):
+        if dist.get_rank() == 0:
+            return func(*args, **kwargs)
+
+    return wrapper
