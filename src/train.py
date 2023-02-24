@@ -23,6 +23,7 @@ from transformers import BertTokenizer, BertModel, BertForSequenceClassification
 
 # Import custom modules
 from utils.data import TextDataset, create_data_loader
+from utils.ddp import init_ddp, if_main_process
 
 # Set up logging
 logging.basicConfig(
@@ -83,7 +84,16 @@ def get_args():
         "--max_length", type=int, default=512, help="Maximum length of text"
     )
     parser.add_argument(
-        "--ddp", action="store_true", help="Use distributed data parallel"
+        "--ddp",
+        default=False,
+        action="store_true", 
+        help="Use distributed data parallel"
+    )
+    parser.add_argument(
+        "--backend",
+        type=str,
+        default="nccl",
+        help="Backend for distributed training",
     )
     return parser.parse_args()
 
@@ -107,7 +117,9 @@ def train(args):
 
     if args.ddp:
         # Initialize distributed training
-        torch.distributed.init_process_group(backend="nccl")
+        init_ddp(rank=local_rank, 
+                 world_size=args.world_size,
+                 backend=args.backend)
 
     # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
