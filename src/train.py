@@ -15,8 +15,7 @@ from datetime import datetime
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
-from torch.utils.data.distributed import DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 # Import huggingface
 from transformers import BertTokenizer, BertModel, BertForSequenceClassification
@@ -114,12 +113,14 @@ def train(args):
  
     # Load model
     model = BertForSequenceClassification.from_pretrained(args.model_path)
+    model.to(device)
 
     if args.ddp:
         # Initialize distributed training
         init_ddp(rank=local_rank, 
                  world_size=args.world_size,
                  backend=args.backend)
+        model = DDP(model, device_ids=[device])
 
     # Load tokenizer
     tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
@@ -131,6 +132,7 @@ def train(args):
         text_col=args.text_col,
         numberic_col_list=args.numberic_col_list,
         max_length=args.max_length,
+        shuffle=True,
         ddp=args.ddp,
         batch_size=args.batch_size,
         num_workers=4,
@@ -145,6 +147,7 @@ def train(args):
         text_col=args.text_col,
         numberic_col_list=args.numberic_col_list,
         max_length=args.max_length,
+        shuffle=False,
         ddp=args.ddp,
         batch_size=args.batch_size,
         num_workers=4,

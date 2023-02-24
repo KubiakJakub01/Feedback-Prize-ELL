@@ -24,6 +24,7 @@ def create_data_loader(
     text_col,
     numberic_col_list,
     max_length,
+    shuffle,
     ddp,
     batch_size,
     num_workers,
@@ -50,13 +51,14 @@ def create_data_loader(
         max_length=max_length,
     )
 
+    data_sampler = None
     if ddp:
         data_sampler = DistributedSampler(text_dataset)
 
     data_loader = DataLoader(
         text_dataset,
         batch_size=batch_size,
-        shuffle=(data_sampler is None),
+        shuffle=False if ddp else shuffle,
         sampler=data_sampler,
         num_workers=num_workers,
         pin_memory=pin_memory,
