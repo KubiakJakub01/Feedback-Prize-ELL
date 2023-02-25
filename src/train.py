@@ -23,6 +23,7 @@ from transformers import BertTokenizer, BertModel, BertForSequenceClassification
 # Import custom modules
 from utils.data import TextDataset, create_data_loader
 from utils.ddp import init_ddp, if_main_process
+from utils.training import get_optimizer, get_scheduler, get_loss_fn, Trainer
 
 # Set up logging
 logging.basicConfig(
@@ -78,6 +79,9 @@ def get_args():
     )
     parser.add_argument(
         "--batch_size", type=int, default=32, help="Batch size for training"
+    )
+    parser.add_argument(
+        "--learning_rate", type=float, default=1e-5, help="Learning rate for training"
     )
     parser.add_argument(
         "--max_length", type=int, default=512, help="Maximum length of text"
@@ -154,6 +158,20 @@ def train(args):
         pin_memory=True,
         drop_last=False,
     )
+
+    # Define loss function
+    loss_fn = get_loss_fn()
+
+    # Define optimizer
+    optimizer = get_optimizer(model=model, lr=args.learning_rate)
+
+    # Define scheduler
+    scheduler = get_scheduler(optimizer=optimizer, 
+                                num_warmup_steps=0, 
+                                num_training_steps=len(train_data_loader) * args.epochs)
+    
+
+
 
 
 if __name__ == "__main__":
