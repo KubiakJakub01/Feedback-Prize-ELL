@@ -48,3 +48,13 @@ def get_scheduler(optimizer, num_warmup_steps, num_training_steps):
         )
         / (1.0 - step / num_training_steps),
     )
+
+
+def get_loss_fn():
+    """
+    Get loss function.
+
+    Returns:
+        Loss: PyTorch loss function.
+    """
+    return nn.BCEWithLogitsLoss()
