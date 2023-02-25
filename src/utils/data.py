@@ -35,10 +35,17 @@ def create_data_loader(
     Create a data loader for a given dataset.
 
     Args:
-        df (pd.DataFrame): Dataframe containing data.
+        data_path (str): Path to data.
         tokenizer (BertTokenizer): Tokenizer for encoding text.
-        max_len (int): Maximum length of a sequence.
-        batch_size (int): Number of samples per batch.
+        text_col (str): Name of text column.
+        numberic_col_list (list): List of numberic column names.
+        max_length (int): Maximum length of a sequence.
+        shuffle (bool): Whether to shuffle the data.
+        ddp (bool): Whether to use distributed data parallel.
+        batch_size (int): Batch size.
+        num_workers (int): Number of workers.
+        pin_memory (bool): Whether to pin memory.
+        drop_last (bool): Whether to drop last batch.
 
     Returns:
         DataLoader: PyTorch data loader.
@@ -78,6 +85,8 @@ class TextDataset(Dataset):
         Args:
             data_path (str): Path to data.
             tokenizer (BertTokenizer): Tokenizer for encoding text.
+            text_col (str): Name of text column.
+            numberic_col_list (list): List of numberic column names.
             max_len (int): Maximum length of a sequence.
         """
         self.data = pd.read_csv(data_path)
