@@ -47,9 +47,7 @@ def get_scheduler(optimizer, num_warmup_steps, num_training_steps):
     """
     return optim.lr_scheduler.LambdaLR(
         optimizer,
-        lr_lambda=lambda step: min(
-            1.0, step / num_warmup_steps
-        )
+        lr_lambda=lambda step: min(1.0, step / num_warmup_steps)
         / (1.0 - step / num_training_steps),
     )
 
@@ -69,7 +67,7 @@ class Trainer:
     """
     Class for training a model.
     """
-    
+
     model: nn.Module
     optimizer: optim.Optimizer
     scheduler: optim.lr_scheduler.LambdaLR
@@ -80,7 +78,6 @@ class Trainer:
     save_path: Path
     num_epochs: int
     validation_step: int
-    num_training_steps: int
     num_warmup_steps: int
     log_step: int
     save_step: int
@@ -97,7 +94,6 @@ class Trainer:
         self.global_step = 0
         self.trai_loss = 0.0
         self.valid_loss = 0.0
-
 
     def process_batch(self, batch):
         """
@@ -232,7 +228,9 @@ class Trainer:
                 # Validate model
                 if self.global_step % self.validation_step == 0:
                     self.valid_loss = self.valid_one_epoch()
-                    self.writer.add_scalar("valid_loss", self.valid_loss, self.global_step)
+                    self.writer.add_scalar(
+                        "valid_loss", self.valid_loss, self.global_step
+                    )
 
                 # Save model
                 if self.global_step % self.save_step == 0:
@@ -248,15 +246,17 @@ class Trainer:
         logger.info("Saving checkpoint to {}".format(checpoint_dir))
 
         # Save checkpoint
-        torch.save({
-            "optimizer": self.optimizer.state_dict(),
-            "scheduler": self.scheduler.state_dict(),
-            "global_step": self.global_step,
-            "train_loss": self.train_loss,
-            "valid_loss": self.valid_loss,
-        }, checpoint_dir / "checpoint.pt")
+        torch.save(
+            {
+                "optimizer": self.optimizer.state_dict(),
+                "scheduler": self.scheduler.state_dict(),
+                "global_step": self.global_step,
+                "train_loss": self.train_loss,
+                "valid_loss": self.valid_loss,
+            },
+            checpoint_dir / "checpoint.pt",
+        )
         torch.save(self.model.state_dict(), checpoint_dir / "model.pt")
-        
 
     def fit(self):
         """
