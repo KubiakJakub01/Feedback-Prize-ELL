@@ -238,6 +238,26 @@ class Trainer:
                 if self.global_step % self.save_step == 0:
                     self.save_model()
 
+    def save_model(self):
+        """
+        Save model.
+        """
+        # Create checkpoint directory
+        checpoint_dir = self.save_path / f"checkpoint_{self.global_step}"
+        checpoint_dir.mkdir(parents=True, exist_ok=True)
+        logger.info("Saving checkpoint to {}".format(checpoint_dir))
+
+        # Save checkpoint
+        torch.save({
+            "optimizer": self.optimizer.state_dict(),
+            "scheduler": self.scheduler.state_dict(),
+            "global_step": self.global_step,
+            "train_loss": self.train_loss,
+            "valid_loss": self.valid_loss,
+        }, checpoint_dir / "checpoint.pt")
+        torch.save(self.model.state_dict(), checpoint_dir / "model.pt")
+        
+
     def fit(self):
         """
         Train model for specified number of epochs.
