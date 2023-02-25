@@ -6,11 +6,12 @@ import os
 import sys
 import logging
 from pathlib import Path
+from dataclasses import dataclass
 
 import pandas as pd
 import numpy as np
 
-from torch import tensor, float32
+from torch import tensor, float32, int64
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
@@ -73,6 +74,35 @@ def create_data_loader(
     )
 
     return data_loader
+
+
+@dataclass
+class DataCollatorWithPadding:
+    """
+    Data collator that will dynamically pad the inputs received.
+    """
+
+    def __call__(self, batch):
+        """
+        Args:
+            batch (list): List of dictionary of input_ids, attention_mask, and labels.
+
+        Returns:
+            dict: Dictionary containing input_ids, attention_mask, and labels.
+        """
+        input_ids = [item["input_ids"] for item in batch]
+        attention_mask = [item["attention_mask"] for item in batch]
+        labels = [item["labels"] for item in batch]
+
+        input_ids = tensor(input_ids, dtype=int64)
+        attention_mask = tensor(attention_mask, dtype=int64)
+        labels = tensor(labels, dtype=float32)
+
+        return {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "labels": labels,
+        }
 
 
 class TextDataset(Dataset):
