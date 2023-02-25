@@ -89,8 +89,8 @@ def get_args():
     parser.add_argument(
         "--ddp",
         default=False,
-        action="store_true", 
-        help="Use distributed data parallel"
+        action="store_true",
+        help="Use distributed data parallel",
     )
     parser.add_argument(
         "--backend",
@@ -114,16 +114,14 @@ def train(args):
         if torch.cuda.is_available()
         else "cpu"
     )
- 
+
     # Load model
     model = BertForSequenceClassification.from_pretrained(args.model_path)
     model.to(device)
 
     if args.ddp:
         # Initialize distributed training
-        init_ddp(rank=local_rank, 
-                 world_size=args.world_size,
-                 backend=args.backend)
+        init_ddp(rank=local_rank, world_size=args.world_size, backend=args.backend)
         model = DDP(model, device_ids=[device])
 
     # Load tokenizer
@@ -166,12 +164,32 @@ def train(args):
     optimizer = get_optimizer(model=model, lr=args.learning_rate)
 
     # Define scheduler
-    scheduler = get_scheduler(optimizer=optimizer, 
-                                num_warmup_steps=0, 
-                                num_training_steps=len(train_data_loader) * args.epochs)
-    
+    scheduler = get_scheduler(
+        optimizer=optimizer,
+        num_warmup_steps=0,
+        num_training_steps=len(train_data_loader) * args.epochs,
+    )
 
+    # Define trainer
+    trainer = Trainer(
+        model=model,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        loss_fn=loss_fn,
+        train_data_loader=train_data_loader,
+        valid_data_loader=valid_data_loader,
+        device=device,
+        save_path=SAVE_PATH,
+        num_epochs=args.epochs,
+        validation_step=100,
+        num_warmup_steps=0,
+        log_step=10,
+        save_step=100,
+        max_grad_norm=1.0,
+    )
 
+    # Train model
+    trainer.fit()
 
 
 if __name__ == "__main__":
