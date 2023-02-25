@@ -7,6 +7,7 @@ import sys
 import logging
 from pathlib import Path
 from dataclasses import dataclass
+from tqdm import tqdm
 
 import torch
 import torch.nn as nn
@@ -160,7 +161,7 @@ class Trainer:
         loss = 0
 
         # Iterate over batches
-        for batch in self.valid_data_loader:
+        for batch in tqdm(self.valid_data_loader, desc="Validating"):
             # Validate model for one step
             loss += self.valid_one_step(batch)
 
@@ -215,34 +216,27 @@ class Trainer:
         Method for training model for one epoch.
         """
         self.model.train()
-        for batch in self.train_data_loader:
-            # Train model for one step
-            loss = self.train_one_step(batch)
+        with tqdm(self.train_data_loader, desc="Training") as pbar:
+            for batch in pbar:
+                # Train model for one step
+                loss = self.train_one_step(batch)
 
-            # Log training loss
-            if self.global_step % self.log_step == 0:
-                logger.info(
-                    "Step {}/{}: Loss: {}".format(
-                        self.global_step,
-                        self.num_training_steps,
-                        loss.item(),
-                    )
-                )
-                self.writer.add_scalar(
-                    "training/loss", loss.item(), self.global_step
-                )
+                # Update progress bar
+                pbar.set_postfix({"loss": loss})
+                pbar.update()
 
-            # Save model
-            if self.global_step % self.save_step == 0:
-                logger.info("Saving model")
-                self.model.save_pretrained(self.save_path)
-            
-            # Update validation loss
-            valid_loss = self.valid_one_epoch()
+                # Log training loss
+                if self.global_step % self.log_step == 0:
+                    self.writer.add_scalar("loss", loss, self.global_step)
 
-            # Update global step
-            self.global_step += 1
+                # Validate model
+                if self.global_step % self.validation_step == 0:
+                    self.valid_loss = self.valid_one_epoch()
+                    self.writer.add_scalar("valid_loss", self.valid_loss, self.global_step)
 
+                # Save model
+                if self.global_step % self.save_step == 0:
+                    self.save_model()
 
     def fit(self):
         """
