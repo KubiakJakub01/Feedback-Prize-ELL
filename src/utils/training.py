@@ -90,10 +90,12 @@ class Trainer:
         # Initialize tensorboard writer
         self.writer = SummaryWriter(log_dir=self.save_path / "tensorboard")
 
-        # Initialize training variables
+        # Create torch GrandScaler
+        self.scaler = torch.cuda.amp.GradScaler()
+
+        # Initialize global step
         self.global_step = 0
-        self.trai_loss = 0.0
-        self.valid_loss = 0.0
+
 
     def process_batch(self, batch):
         """
@@ -147,9 +149,6 @@ class Trainer:
         Returns:
             float: Validation loss.
         """
-        if self.global_step % self.validation_step != 0:
-            return
-
         # Set model to evaluation mode
         self.model.eval()
 
@@ -157,12 +156,14 @@ class Trainer:
         loss = 0
 
         # Iterate over batches
-        for batch in tqdm(self.valid_data_loader, desc="Validating"):
+        for batch in tqdm(self.valid_data_loader, desc=f"Validating after {self.global_step} steps"):
             # Validate model for one step
             loss += self.valid_one_step(batch)
-
+            
         # Calculate average loss
         loss /= len(self.valid_data_loader)
+
+        self.model.train()
 
         return loss
 
@@ -176,28 +177,36 @@ class Trainer:
         Returns:
             float: Training loss.
         """
+        # Zero out gradients
+        self.optimizer.zero_grad()
+
         # Get batch
         input_ids, attention_mask, token_type_ids, labels = self.process_batch(batch)
 
         # Get model outputs
-        outputs = self.model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-        )
+        with torch.cuda.amp.autocast(device_type=self.device, dtype=torch.float16):
+            outputs = self.model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids,
+            )
+            # Calculate loss
+            loss = self.loss_fn(logits, labels)
+
         logits = outputs[0]
 
-        # Calculate loss
-        loss = self.loss_fn(logits, labels)
-
         # Backpropagate loss
-        loss.backward()
+        self.scaler.scale(loss).backward()
 
+        self.scaler.unscale_(self.optimizer)
         # Clip gradients
         torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
 
         # Update optimizer
-        self.optimizer.step()
+        self.scaler.step(optimizer=self.optimizer)
+
+        # Update scaler
+        self.scaler.update()
 
         # Update scheduler
         self.scheduler.step()
@@ -207,12 +216,12 @@ class Trainer:
 
         return loss.item()
 
-    def train_one_epoch(self):
+    def train_one_epoch(self, epoch):
         """
         Method for training model for one epoch.
         """
         self.model.train()
-        with tqdm(self.train_data_loader, desc="Training") as pbar:
+        with tqdm(self.train_data_loader, desc=f"Training epoch nr {epoch}") as pbar:
             for batch in pbar:
                 # Train model for one step
                 loss = self.train_one_step(batch)
@@ -265,4 +274,4 @@ class Trainer:
         logger.info("Start training")
         for epoch in range(self.num_epochs):
             logger.info("Epoch {}/{}".format(epoch + 1, self.num_epochs))
-            self.train_one_epoch()
+            self.train_one_epoch(epoch)
