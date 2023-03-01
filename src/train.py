@@ -23,7 +23,8 @@ from transformers import BertTokenizer, BertModel, BertForSequenceClassification
 # Import custom modules
 from utils.data import TextDataset, create_data_loader
 from utils.ddp import init_ddp, if_main_process
-from utils.training import get_optimizer, get_scheduler, get_loss_fn, Trainer
+from utils.model_utils import get_optimizer, get_scheduler, get_loss_fn, get_model
+from utils.training import Trainer
 
 # Set up logging
 logging.basicConfig(
@@ -42,6 +43,9 @@ def get_args():
     parser = argparse.ArgumentParser(description="Train a model")
     parser.add_argument(
         "--mode_path", type=str, default="bert-base-uncased", help="Path to BERT model"
+    )
+    parser.add_argument(
+        "--model_name", type=str, default="bert", help="Name of model to train"
     )
     parser.add_argument(
         "--train_data_path",
@@ -115,17 +119,15 @@ def train(args):
         else "cpu"
     )
 
-    # Load model
-    model = BertForSequenceClassification.from_pretrained(args.model_path)
+    # Load model and tokenizer
+    model, tokenizer = get_model(model_path=args.model_path, 
+                                model_name=args.model_name)
     model.to(device)
 
     if args.ddp:
         # Initialize distributed training
         init_ddp(rank=local_rank, world_size=args.world_size, backend=args.backend)
         model = DDP(model, device_ids=[device])
-
-    # Load tokenizer
-    tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
 
     # Load training dataloader
     train_data_loader = create_data_loader(
