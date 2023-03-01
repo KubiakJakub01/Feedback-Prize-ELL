@@ -1,17 +1,14 @@
 """
 Module with utils for training models.
 """
-
-import os
-import sys
 import logging
 
-import torch
 import torch.nn as nn
 import torch.optim as optim
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
 
 def get_optimizer(model, lr):
     """
@@ -69,13 +66,13 @@ def get_model(model_path, model_name):
     """
     if model_name == "bert":
         from transformers import BertConfig, BertModel, BertTokenizer
-        
+
         configuration = BertConfig()
         tokenizer = BertTokenizer.from_pretrained(model_path)
         model = BertModel.from_pretrained(model_path, config=configuration)
 
         return model, tokenizer
-    
+
     elif model_name == "roberta":
         from transformers import RobertaConfig, RobertaModel, RobertaTokenizer
 
@@ -86,4 +83,3 @@ def get_model(model_path, model_name):
         return model, tokenizer
 
     raise ValueError(f"Model {model_name} not supported.")
-

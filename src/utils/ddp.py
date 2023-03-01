@@ -26,11 +26,13 @@ def init_ddp(rank, world_size, backend="nccl"):
     """
 
     # Initialize the process group
-    dist.init_process_group(backend, 
-                            rank=rank, 
-                            world_size=world_size,
-                            init_method="env://",
-                            timeout=datetime.timedelta(0, 1800))
+    dist.init_process_group(
+        backend,
+        rank=rank,
+        world_size=world_size,
+        init_method="env://",
+        timeout=datetime.timedelta(0, 1800),
+    )
 
     # Set the device
     torch.cuda.set_device(rank)

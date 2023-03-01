@@ -53,7 +53,6 @@ class Trainer:
         # Initialize global step
         self.global_step = 0
 
-
     def process_batch(self, batch):
         """
         Process batch.
@@ -113,10 +112,12 @@ class Trainer:
         loss = 0
 
         # Iterate over batches
-        for batch in tqdm(self.valid_data_loader, desc=f"Validating after {self.global_step} steps"):
+        for batch in tqdm(
+            self.valid_data_loader, desc=f"Validating after {self.global_step} steps"
+        ):
             # Validate model for one step
             loss += self.valid_one_step(batch)
-            
+
         # Calculate average loss
         loss /= len(self.valid_data_loader)
 
