@@ -13,15 +13,10 @@ from datetime import datetime
 
 # Import torch
 import torch
-import torch.nn as nn
-import torch.optim as optim
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-# Import huggingface
-from transformers import BertTokenizer, BertModel, BertForSequenceClassification
-
 # Import custom modules
-from utils.data import TextDataset, create_data_loader
+from utils.data import create_data_loader
 from utils.ddp import init_ddp, if_main_process
 from utils.model_utils import get_optimizer, get_scheduler, get_loss_fn, get_model
 from utils.training import Trainer
@@ -97,10 +92,7 @@ def get_args():
         help="Use distributed data parallel",
     )
     parser.add_argument(
-        "--backend",
-        type=str,
-        default="nccl",
-        help="Backend for distributed training",
+        "--backend", type=str, default="nccl", help="Backend for distributed training"
     )
     return parser.parse_args()
 
@@ -120,8 +112,7 @@ def train(args):
     )
 
     # Load model and tokenizer
-    model, tokenizer = get_model(model_path=args.model_path, 
-                                model_name=args.model_name)
+    model, tokenizer = get_model(model_path=args.model_path, model_name=args.model_name)
     model.to(device)
 
     if args.ddp:
