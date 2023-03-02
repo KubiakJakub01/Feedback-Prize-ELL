@@ -1,0 +1,24 @@
+model_params:
+  model_checkpoint: bert-base-uncased
+  model_name: bert
+  save_path: models/
+
+data_params:
+  train_data_path: data/train.csv
+  valid_data_path: data/valid.csv
+  text_col: full_text
+  label_cols: [
+            "cohesion",
+            "syntax",
+            "vocabulary",
+            "phraseology",
+            "grammar",
+            "conventions",
+        ]
+
+training_params:
+  epochs: 5
+  batch_size: 32
+  learning_rate: 1e-5
+  max_length: 512
+  ddp: False
