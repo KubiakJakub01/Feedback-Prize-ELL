@@ -1,6 +1,7 @@
 """
 Module for parsing parameters from yaml files.
 """
+import os
 import yaml
 from dataclasses import dataclass, field
 from typing import List
@@ -76,6 +77,23 @@ class Params:
         Returns:
             Params: The parameters from the YAML file.
         """
+        # Check if file is url or local path
+        if yaml_file_path.startswith("http"):
+            import requests
+            import tempfile
+
+            # Download file
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                response = requests.get(yaml_file_path)
+                f.write(response.content)
+
+            # Get file path
+            yaml_file_path = f.name
+
+        # Check if file exists
+        if not os.path.exists(yaml_file_path):
+            raise FileNotFoundError(f"File not found at {yaml_file_path}")
+        
         with open(yaml_file_path) as f:
             params_dict = yaml.safe_load(f)
 
