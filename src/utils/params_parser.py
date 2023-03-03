@@ -10,14 +10,14 @@ from typing import List
 @dataclass
 class ModelParams:
     model_checkpoint: str = field(
-        metadata={"help": "The name or path of the pre-trained model checkpoint to use."}
+        metadata={
+            "help": "The name or path of the pre-trained model checkpoint to use."
+        }
     )
     model_name: str = field(
         metadata={"help": "The name of the model architecture being used."}
     )
-    save_path: str = field(
-        metadata={"help": "The path to save the trained model."}
-    )
+    save_path: str = field(metadata={"help": "The path to save the trained model."})
 
 
 @dataclass
@@ -29,10 +29,14 @@ class DataParams:
         metadata={"help": "The path to the CSV file containing the validation data."}
     )
     text_col: str = field(
-        metadata={"help": "The name of the column in the CSV file containing the input text data."}
+        metadata={
+            "help": "The name of the column in the CSV file containing the input text data."
+        }
     )
     label_cols: List[str] = field(
-        metadata={"help": "A list of names of columns in the CSV file containing the labels for each input text."}
+        metadata={
+            "help": "A list of names of columns in the CSV file containing the labels for each input text."
+        }
     )
 
 
@@ -41,17 +45,19 @@ class TrainingParams:
     epochs: int = field(
         metadata={"help": "The number of epochs to train the model for."}
     )
-    batch_size: int = field(
-        metadata={"help": "The batch size to use for training."}
-    )
+    batch_size: int = field(metadata={"help": "The batch size to use for training."})
     learning_rate: float = field(
         metadata={"help": "The learning rate to use for the optimizer."}
     )
     max_length: int = field(
-        metadata={"help": "The maximum length of input sequences to use during training and inference."}
+        metadata={
+            "help": "The maximum length of input sequences to use during training and inference."
+        }
     )
     ddp: bool = field(
-        metadata={"help": "Whether to use Distributed Data Parallel (DDP) for training."}
+        metadata={
+            "help": "Whether to use Distributed Data Parallel (DDP) for training."
+        }
     )
 
 
@@ -93,15 +99,14 @@ class Params:
         # Check if file exists
         if not os.path.exists(yaml_file_path):
             raise FileNotFoundError(f"File not found at {yaml_file_path}")
-        
+
         with open(yaml_file_path) as f:
             params_dict = yaml.safe_load(f)
 
             params = Params(
-                model_params=ModelParams(**params_dict['model_params']),
-                data_params=DataParams(**params_dict['data_params']),
-                training_params=TrainingParams(**params_dict['training_params'])
+                model_params=ModelParams(**params_dict["model_params"]),
+                data_params=DataParams(**params_dict["data_params"]),
+                training_params=TrainingParams(**params_dict["training_params"]),
             )
 
         return params
-
