@@ -16,8 +16,9 @@ import torch
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 # Import custom modules
+from utils.params_parser import get_params
 from utils.data import create_data_loader
-from utils.ddp import init_ddp, if_main_process
+from utils.ddp import init_ddp
 from utils.model_utils import get_optimizer, get_scheduler, get_loss_fn, get_model
 from utils.training import Trainer
 
@@ -29,72 +30,6 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
-
-
-def get_args():
-    """
-    Get command line arguments.
-    """
-    parser = argparse.ArgumentParser(description="Train a model")
-    parser.add_argument(
-        "--mode_path", type=str, default="bert-base-uncased", help="Path to BERT model"
-    )
-    parser.add_argument(
-        "--model_name", type=str, default="bert", help="Name of model to train"
-    )
-    parser.add_argument(
-        "--train_data_path",
-        type=str,
-        default="data/train.csv",
-        help="Path to training data",
-    )
-    parser.add_argument(
-        "--valid_data_path",
-        type=str,
-        default="data/valid.csv",
-        help="Path to validation data",
-    )
-    parser.add_argument(
-        "--save_path", type=str, default="models", help="Path to save model checkpoints"
-    )
-    parser.add_argument(
-        "--text_col", type=str, default="full_text", help="Name of text column"
-    )
-    parser.add_argument(
-        "--label_cols",
-        nargs="+",
-        default=[
-            "cohesion",
-            "syntax",
-            "vocabulary",
-            "phraseology",
-            "grammar",
-            "conventions",
-        ],
-        help="List of label columns",
-    )
-    parser.add_argument(
-        "--epochs", type=int, default=10, help="Number of epochs to train for"
-    )
-    parser.add_argument(
-        "--batch_size", type=int, default=32, help="Batch size for training"
-    )
-    parser.add_argument(
-        "--learning_rate", type=float, default=1e-5, help="Learning rate for training"
-    )
-    parser.add_argument(
-        "--max_length", type=int, default=512, help="Maximum length of text"
-    )
-    parser.add_argument(
-        "--ddp",
-        default=False,
-        action="store_true",
-        help="Use distributed data parallel",
-    )
-    parser.add_argument(
-        "--backend", type=str, default="nccl", help="Backend for distributed training"
-    )
-    return parser.parse_args()
 
 
 def train(args):
@@ -186,15 +121,21 @@ def train(args):
 
 
 if __name__ == "__main__":
-    # Get command line arguments
-    args = get_args()
-    MODEL_PATH = Path(args.mode_path)
-    MODEL_NAME = MODEL_PATH.name
-
     # Get start time of training with format yyyy-mm-dd hh:mm:ss
     START_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    EXPERIMENT_NAME = f"{MODEL_NAME}_{START_TIME}"
     logger.info("Starting training at {}".format(START_TIME))
+
+    # Get command line arguments
+    if len(sys.argv) == 2:
+        args = get_params(sys.argv[1])
+    else:
+        message = "Please provide a path to the parameters file."
+        logger.error(message)
+        raise ValueError(message)
+
+    MODEL_PATH = Path(args.mode_path)
+    MODEL_NAME = MODEL_PATH.name
+    EXPERIMENT_NAME = f"{MODEL_NAME}_{START_TIME}"
 
     # Define save path
     SAVE_PATH = Path(args.save_path) / EXPERIMENT_NAME
