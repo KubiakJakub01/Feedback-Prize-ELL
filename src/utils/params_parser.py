@@ -73,40 +73,38 @@ class Params:
         metadata={"help": "The configuration for the training process."}
     )
 
-    def get_params(yaml_file_path):
-        """
-        Get parameters from a YAML file.
 
-        Args:
-            yaml_file_path (str): The path to the YAML file containing the parameters.
-        
-        Returns:
-            Params: The parameters from the YAML file.
-        """
-        # Check if file is url or local path
-        if yaml_file_path.startswith("http"):
-            import requests
-            import tempfile
+def get_params(yaml_file_path):
+    """
+    Get parameters from a YAML file.
+    Args:
+        yaml_file_path (str): The path to the YAML file containing the parameters.
+    
+    Returns:
+        Params: The parameters from the YAML file.
+    """
+    # Check if file is url or local path
+    if yaml_file_path.startswith("http"):
+        import requests
+        import tempfile
 
-            # Download file
-            with tempfile.NamedTemporaryFile(delete=False) as f:
-                response = requests.get(yaml_file_path)
-                f.write(response.content)
+        # Download file
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            response = requests.get(yaml_file_path)
+            f.write(response.content)
+        # Get file path
+        yaml_file_path = f.name
 
-            # Get file path
-            yaml_file_path = f.name
+    # Check if file exists
+    if not os.path.exists(yaml_file_path):
+        raise FileNotFoundError(f"File not found at {yaml_file_path}")
 
-        # Check if file exists
-        if not os.path.exists(yaml_file_path):
-            raise FileNotFoundError(f"File not found at {yaml_file_path}")
+    with open(yaml_file_path) as f:
+        params_dict = yaml.safe_load(f)
+        params = Params(
+            model_params=ModelParams(**params_dict["model_params"]),
+            data_params=DataParams(**params_dict["data_params"]),
+            training_params=TrainingParams(**params_dict["training_params"]),
+        )
 
-        with open(yaml_file_path) as f:
-            params_dict = yaml.safe_load(f)
-
-            params = Params(
-                model_params=ModelParams(**params_dict["model_params"]),
-                data_params=DataParams(**params_dict["data_params"]),
-                training_params=TrainingParams(**params_dict["training_params"]),
-            )
-
-        return params
+    return params
