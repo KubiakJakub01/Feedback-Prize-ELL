@@ -38,3 +38,26 @@ def get_args():
         help="The random state to use for the train/test split.",
     )
     return parser.parse_args()
+
+
+def split_data(data_path, save_path, train_size, random_state):
+    """
+    Split data into train and validation sets.
+    """
+    # Read data
+    data = pd.read_csv(data_path)
+
+    # Split data into train and validation sets
+    train_data, valid_data = train_test_split(
+        data, train_size=train_size, random_state=random_state
+    )
+
+    # Save data
+    train_data.to_csv(save_path / "train.csv", index=False)
+    valid_data.to_csv(save_path / "valid.csv", index=False)
+
+
+if __name__ == "__main__":
+    args = get_args()
+    split_data(args.data_path, args.save_path, args.train_size, args.random_state)
+    print("Done!")
