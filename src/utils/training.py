@@ -39,6 +39,7 @@ class Trainer:
     log_step: int
     save_step: int
     max_grad_norm: float
+    f16: bool = False
 
     def __post_init__(self):
         """
@@ -48,7 +49,7 @@ class Trainer:
         self.writer = SummaryWriter(log_dir=self.save_path / "tensorboard")
 
         # Create torch GrandScaler
-        self.scaler = torch.cuda.amp.GradScaler()
+        self.scaler = torch.cuda.amp.GradScaler(f16=self.f16)
 
         # Initialize global step
         self.global_step = 0
@@ -154,7 +155,8 @@ class Trainer:
         logits = outputs[0]
 
         # Backpropagate loss
-        self.scaler.scale(loss).backward()
+        with torch.cuda.amp.autocast(device_type=self.device, dtype=torch.float16):
+            self.scaler.scale(loss).backward()
 
         self.scaler.unscale_(self.optimizer)
         # Clip gradients
