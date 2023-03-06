@@ -15,6 +15,9 @@ from datetime import datetime
 import torch
 from torch.nn.parallel import DistributedDataParallel as DDP
 
+# Import wandb
+import wandb
+
 # Import custom modules
 from utils.params_parser import get_params
 from utils.data import create_data_loader
@@ -139,6 +142,16 @@ if __name__ == "__main__":
 
     # Define save path
     SAVE_PATH = Path(args.save_path) / EXPERIMENT_NAME
+
+    # Init wandb
+    wandb.init(
+            project=args.wandb_project_name,
+            entity=args.wandb_entity,
+            sync_tensorboard=True,
+            config=vars(args),
+            name=EXPERIMENT_NAME,
+            save_code=True,
+        )
 
     # Get environment variables
     world_size = int(os.environ.get("WORLD_SIZE", 1))
