@@ -1,6 +1,7 @@
 experiment_params:
   track: true
   wandb_project_name: "feedback-prize-ell"
+  wandb_entity: None
   ddp: False
 
 model_params:

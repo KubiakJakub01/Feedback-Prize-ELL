@@ -4,8 +4,19 @@ Module for parsing parameters from yaml files.
 import os
 import yaml
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
+@dataclass
+class ExperimentParams:
+    track: Optional[bool] = field(metadata={"help": "(Optional) Whether to track the experiment using wandb." \
+                                              "If set to False, wandb will not be used."}, default=False)
+    wandb_project_name: Optional[str] = field(
+        metadata={"help": "The name of the wandb project to use."}
+    )
+    wandb_entity: Optional[str] = field(metadata={"help": "(Optional) The name of the wandb entity to use. \
+                                                  If not provided, wandb will use the default entity."})
+    ddp: Optional[bool] = field(metadata={"help": "(Optional) Whether to use Distributed Data Parallel (DDP) for training." \
+                                                    "Default to false"}, default=False)
 
 @dataclass
 class ModelParams:
@@ -41,7 +52,7 @@ class DataParams:
 
 
 @dataclass
-class TrainingParams:
+class Hyperparameters:
     epochs: int = field(
         metadata={"help": "The number of epochs to train the model for."}
     )
@@ -54,22 +65,20 @@ class TrainingParams:
             "help": "The maximum length of input sequences to use during training and inference."
         }
     )
-    ddp: bool = field(
-        metadata={
-            "help": "Whether to use Distributed Data Parallel (DDP) for training."
-        }
-    )
 
 
 @dataclass
 class Params:
+    experiment_params: ExperimentParams = field(
+        metadata={"help": "The configuration for the experiment."}
+    )
     model_params: ModelParams = field(
         metadata={"help": "The configuration for the model."}
     )
     data_params: DataParams = field(
         metadata={"help": "The configuration for the data."}
     )
-    training_params: TrainingParams = field(
+    hyperparameters: Hyperparameters = field(
         metadata={"help": "The configuration for the training process."}
     )
 
@@ -102,9 +111,10 @@ def get_params(yaml_file_path):
     with open(yaml_file_path) as f:
         params_dict = yaml.safe_load(f)
         params = Params(
+            experiment_params=ExperimentParams(**params_dict["experiment_params"]),
             model_params=ModelParams(**params_dict["model_params"]),
             data_params=DataParams(**params_dict["data_params"]),
-            training_params=TrainingParams(**params_dict["training_params"]),
+            training_params=Hyperparameters(**params_dict["training_params"]),
         )
 
     return params
