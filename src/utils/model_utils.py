@@ -10,7 +10,7 @@ import torch.optim as optim
 logger = logging.getLogger(__name__)
 
 
-def get_optimizer(model, lr):
+def get_optimizer(model, optimizer_name, lr):
     """
     Get optimizer.
 
@@ -21,7 +21,20 @@ def get_optimizer(model, lr):
     Returns:
         Optimizer: PyTorch optimizer.
     """
-    return optim.Adam(model.parameters(), lr=lr)
+    if optimizer_name == "adam":
+        return optim.Adam(model.parameters(), lr=lr)
+    elif optimizer_name == "adamw":
+        return optim.AdamW(model.parameters(), lr=lr)
+    elif optimizer_name == "sgd":
+        return optim.SGD(model.parameters(), lr=lr)
+    elif optimizer_name == "adagrad":
+        return optim.Adagrad(model.parameters(), lr=lr)
+    elif optimizer_name == "adadelta":
+        return optim.Adadelta(model.parameters(), lr=lr)
+    elif optimizer_name == "rmsprop":
+        return optim.RMSprop(model.parameters(), lr=lr)
+    
+    raise ValueError(f"Optimizer {optimizer_name} not supported.")
 
 
 def get_scheduler(optimizer, num_warmup_steps, num_training_steps):
