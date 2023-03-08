@@ -4,19 +4,35 @@ Module for parsing parameters from yaml files.
 import os
 import yaml
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Literal
+
 
 @dataclass
 class ExperimentParams:
-    track: Optional[bool] = field(metadata={"help": "(Optional) Whether to track the experiment using wandb." \
-                                              "If set to False, wandb will not be used."}, default=False)
+    track: Optional[bool] = field(
+        metadata={
+            "help": "(Optional) Whether to track the experiment using wandb."
+            "If set to False, wandb will not be used."
+        },
+        default=False,
+    )
     wandb_project_name: Optional[str] = field(
         metadata={"help": "The name of the wandb project to use."}
     )
-    wandb_entity: Optional[str] = field(metadata={"help": "(Optional) The name of the wandb entity to use. \
-                                                  If not provided, wandb will use the default entity."})
-    ddp: Optional[bool] = field(metadata={"help": "(Optional) Whether to use Distributed Data Parallel (DDP) for training." \
-                                                    "Default to false"}, default=False)
+    wandb_entity: Optional[str] = field(
+        metadata={
+            "help": "(Optional) The name of the wandb entity to use. \
+                                                  If not provided, wandb will use the default entity."
+        }
+    )
+    ddp: Optional[bool] = field(
+        metadata={
+            "help": "(Optional) Whether to use Distributed Data Parallel (DDP) for training."
+            "Default to false"
+        },
+        default=False,
+    )
+
 
 @dataclass
 class ModelParams:
@@ -29,6 +45,22 @@ class ModelParams:
         metadata={"help": "The name of the model architecture being used."}
     )
     save_path: str = field(metadata={"help": "The path to save the trained model."})
+    optimizer_name: Literal[
+        "adam", "adamw", "sgd", "adagrad", "adadelta", "rmsprop"
+    ] = field(
+        metadata={
+            "help": "The name of the optimizer to use for training. Defaults to adam"
+        },
+        default="adam",
+    )
+    type_of_scheduler = Literal[
+        "linear", "cosine", "cosine_with_restarts", "one_cycle"
+    ] = field(
+        metadata={
+            "help": "The type of scheduler to use for training. Defaults to linear"
+        },
+        default="linear",
+    )
 
 
 @dataclass
