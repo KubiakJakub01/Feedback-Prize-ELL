@@ -10,11 +10,12 @@ import torch.optim as optim
 logger = logging.getLogger(__name__)
 
 
-def get_optimizer(model, optimizer_name, lr):
+def get_optimizer(optimizer_name, model, lr):
     """
     Get optimizer.
 
     Args:
+        optimizer_name (str): Name of optimizer.
         model (nn.Module): Model to optimize.
         lr (float): Learning rate.
 
@@ -37,23 +38,42 @@ def get_optimizer(model, optimizer_name, lr):
     raise ValueError(f"Optimizer {optimizer_name} not supported.")
 
 
-def get_scheduler(optimizer, num_warmup_steps, num_training_steps):
+def get_scheduler(type_of_scheduler: str, optimizer: optim, num_warmup_steps: int, num_training_steps: int):
     """
     Get learning rate scheduler.
 
     Args:
-        optimizer (Optimizer): PyTorch optimizer.
-        num_warmup_steps (int): Number of warmup steps.
-        num_training_steps (int): Number of training steps.
+        type_of_scheduler: Type of scheduler.
+        optimizer: PyTorch optimizer.
+        num_warmup_steps: Number of warmup steps.
+        num_training_steps: Number of training steps.
 
     Returns:
         Scheduler: PyTorch scheduler.
     """
-    return optim.lr_scheduler.LambdaLR(
-        optimizer,
-        lr_lambda=lambda step: min(1.0, step / num_warmup_steps)
-        / (1.0 - step / num_training_steps),
-    )
+    if type_of_scheduler == "linear":
+        return optim.linear_scheduler(
+            optimizer, num_warmup_steps, num_training_steps
+        )
+    elif type_of_scheduler == "cosine":
+        return optim.cosine_scheduler(
+            optimizer, num_warmup_steps, num_training_steps
+        )
+    elif type_of_scheduler == "cosine_with_restarts":
+        return optim.cosine_with_restarts_scheduler(
+            optimizer, num_warmup_steps, num_training_steps
+        )
+    elif type_of_scheduler == "one_cycle":
+        return optim.one_cycle_scheduler(
+            optimizer, num_warmup_steps, num_training_steps
+        )
+    elif type_of_scheduler == "lambdalr":
+        return optim.lr_scheduler.LambdaLR(
+            optimizer,
+            lr_lambda=lambda step: min(1.0, step / num_warmup_steps)
+            / (1.0 - step / num_training_steps),
+        )
+    raise ValueError(f"Scheduler {type_of_scheduler} not supported.")
 
 
 def get_loss_fn():
