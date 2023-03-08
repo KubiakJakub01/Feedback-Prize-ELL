@@ -10,14 +10,14 @@ import torch.optim as optim
 logger = logging.getLogger(__name__)
 
 
-def get_optimizer(optimizer_name, model, lr):
+def get_optimizer(optimizer_name: str, model: nn.Module, lr: float):
     """
     Get optimizer.
 
     Args:
-        optimizer_name (str): Name of optimizer.
-        model (nn.Module): Model to optimize.
-        lr (float): Learning rate.
+        optimizer_name: Name of optimizer.
+        model: Model to optimize.
+        lr: Learning rate.
 
     Returns:
         Optimizer: PyTorch optimizer.
@@ -34,11 +34,16 @@ def get_optimizer(optimizer_name, model, lr):
         return optim.Adadelta(model.parameters(), lr=lr)
     elif optimizer_name == "rmsprop":
         return optim.RMSprop(model.parameters(), lr=lr)
-    
+
     raise ValueError(f"Optimizer {optimizer_name} not supported.")
 
 
-def get_scheduler(type_of_scheduler: str, optimizer: optim, num_warmup_steps: int, num_training_steps: int):
+def get_scheduler(
+    type_of_scheduler: str,
+    optimizer: optim,
+    num_warmup_steps: int,
+    num_training_steps: int,
+):
     """
     Get learning rate scheduler.
 
@@ -52,13 +57,9 @@ def get_scheduler(type_of_scheduler: str, optimizer: optim, num_warmup_steps: in
         Scheduler: PyTorch scheduler.
     """
     if type_of_scheduler == "linear":
-        return optim.linear_scheduler(
-            optimizer, num_warmup_steps, num_training_steps
-        )
+        return optim.linear_scheduler(optimizer, num_warmup_steps, num_training_steps)
     elif type_of_scheduler == "cosine":
-        return optim.cosine_scheduler(
-            optimizer, num_warmup_steps, num_training_steps
-        )
+        return optim.cosine_scheduler(optimizer, num_warmup_steps, num_training_steps)
     elif type_of_scheduler == "cosine_with_restarts":
         return optim.cosine_with_restarts_scheduler(
             optimizer, num_warmup_steps, num_training_steps
