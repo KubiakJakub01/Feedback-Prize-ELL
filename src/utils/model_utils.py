@@ -77,14 +77,35 @@ def get_scheduler(
     raise ValueError(f"Scheduler {type_of_scheduler} not supported.")
 
 
-def get_loss_fn():
+def get_loss_fn(loss_type):
     """
     Get loss function.
 
     Returns:
         Loss: PyTorch loss function.
     """
-    return nn.BCEWithLogitsLoss()
+    if loss_type == "cross_entropy":
+        return nn.CrossEntropyLoss()
+    elif loss_type == "bce":
+        return nn.BCELoss()
+    elif loss_type == "bce_with_logits":
+        return nn.BCEWithLogitsLoss()
+    elif loss_type == "mse":
+        return nn.MSELoss()
+    elif loss_type == "l1":
+        return nn.L1Loss()
+    elif loss_type == "smooth_l1":
+        return nn.SmoothL1Loss()
+    elif loss_type == "kldiv":
+        return nn.KLDivLoss()
+    elif loss_type == "nll":
+        return nn.NLLLoss()
+    elif loss_type == "poisson_nll":
+        return nn.PoissonNLLLoss()
+    elif loss_type == "hinge_embedding":
+        return nn.HingeEmbeddingLoss()
+    
+    raise ValueError(f"Loss {loss_type} not supported.")
 
 
 def get_model(model_path, model_name):
