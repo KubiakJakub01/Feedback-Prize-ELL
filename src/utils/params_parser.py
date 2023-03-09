@@ -61,6 +61,23 @@ class ModelParams:
         },
         default="linear",
     )
+    loss_fn: Literal[
+        "cross_entropy",
+        "bce",
+        "bce_with_logits",
+        "mse",
+        "l1",
+        "smooth_l1",
+        "kldiv",
+        "nll",
+        "poisson_nll",
+        "hinge_embedding",
+    ] = field(
+        metadata={
+            "help": "The loss function to use for training. Defaults to cross_entropy"
+        },
+        default="cross_entropy",
+    )
 
 
 @dataclass
