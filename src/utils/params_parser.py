@@ -39,6 +39,13 @@ class ExperimentParams:
         },
         default=10,
     )
+    save_step: Optional[int] = field(
+        metadata={
+            "help": "(Optional) The number of steps after which to save the model."
+            "Defaults to 100."
+        },
+        default=100,
+    )
 
 
 @dataclass
