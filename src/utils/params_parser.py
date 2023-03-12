@@ -32,6 +32,13 @@ class ExperimentParams:
         },
         default=False,
     )
+    log_step: Optional[int] = field(
+        metadata={
+            "help": "(Optional) The number of steps after which to log the training loss."
+            "Defaults to 10."
+        },
+        default=10,
+    )
 
 
 @dataclass
