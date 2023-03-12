@@ -114,6 +114,12 @@ class Hyperparameters:
             "help": "The maximum length of input sequences to use during training and inference."
         }
     )
+    num_warmup_steps: int = field(
+        metadata={
+            "help": "The number of warmup steps to use for the scheduler. Defaults to 0."
+        },
+        default=0,
+    )
 
 
 @dataclass
