@@ -46,6 +46,13 @@ class ExperimentParams:
         },
         default=100,
     )
+    valid_step: Optional[int] = field(
+        metadata={
+            "help": "(Optional) The number of steps after which to validate the model."
+            "Defaults to 100."
+        },
+        default=100,
+    )
 
 
 @dataclass
