@@ -89,14 +89,19 @@ def train(args):
     )
 
     # Define loss function
-    loss_fn = get_loss_fn()
+    loss_fn = get_loss_fn(loss_fn=args.model.loss_fn)
 
     # Define optimizer
-    optimizer = get_optimizer(model=model, lr=args.learning_rate)
+    optimizer = get_optimizer(
+        args.model.optimizer_name,
+        model,
+        args.hyperparameters.learning_rate,
+    )
 
     # Define scheduler
     scheduler = get_scheduler(
-        optimizer=optimizer,
+        args.model.type_of_scheduler,
+        optimizer,
         num_warmup_steps=0,
         num_training_steps=len(train_data_loader) * args.epochs,
     )
