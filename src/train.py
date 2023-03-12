@@ -60,68 +60,66 @@ def train(args):
 
     # Load training dataloader
     train_data_loader = create_data_loader(
-        data_path=args.train_data_path,
-        tokenizer=tokenizer,
-        text_col=args.text_col,
-        numberic_col_list=args.numberic_col_list,
-        max_length=args.max_length,
+        args.data_params.train_data_path,
+        tokenizer,
+        args.data_params.text_col,
+        args.data_params.label_cols,
+        args.hyperparameters.max_length,
+        args.experiment_params.ddp,
+        args.hyperparameters.batch_size,
+        args.hyperparameters.num_workers,
         shuffle=True,
-        ddp=args.ddp,
-        batch_size=args.batch_size,
-        num_workers=4,
         pin_memory=True,
         drop_last=True,
     )
 
     # Load validation dataloader
     valid_data_loader = create_data_loader(
-        data_path=args.valid_data_path,
-        tokenizer=tokenizer,
-        text_col=args.text_col,
-        numberic_col_list=args.numberic_col_list,
-        max_length=args.max_length,
+        args.data_params.valid_data_path,
+        tokenizer,
+        args.data_params.text_col,
+        args.data_params.label_cols,
+        args.hyperparameters.max_length,
+        args.experiment_params.ddp,
+        args.hyperparameters.batch_size,
+        args.hyperparameters.num_workers,
         shuffle=False,
-        ddp=args.ddp,
-        batch_size=args.batch_size,
-        num_workers=4,
         pin_memory=True,
         drop_last=False,
     )
 
     # Define loss function
-    loss_fn = get_loss_fn(loss_fn=args.model.loss_fn)
+    loss_fn = get_loss_fn(args.model.loss_fn)
 
     # Define optimizer
     optimizer = get_optimizer(
-        args.model.optimizer_name,
-        model,
-        args.hyperparameters.learning_rate,
+        model, args.model.optimizer_name, args.hyperparameters.learning_rate
     )
 
     # Define scheduler
     scheduler = get_scheduler(
-        args.model.type_of_scheduler,
         optimizer,
-        num_warmup_steps=0,
-        num_training_steps=len(train_data_loader) * args.epochs,
+        args.model.type_of_scheduler,
+        args.hyperparameters.num_warmup_steps,
+        num_training_steps=len(train_data_loader) * args.hyperparameters.epochs,
     )
 
     # Define trainer
     trainer = Trainer(
-        model=model,
-        optimizer=optimizer,
-        scheduler=scheduler,
-        loss_fn=loss_fn,
-        train_data_loader=train_data_loader,
-        valid_data_loader=valid_data_loader,
-        device=device,
-        save_path=SAVE_PATH,
-        num_epochs=args.epochs,
-        validation_step=100,
-        num_warmup_steps=0,
-        log_step=10,
-        save_step=100,
-        max_grad_norm=1.0,
+        model,
+        optimizer,
+        scheduler,
+        loss_fn,
+        train_data_loader,
+        valid_data_loader,
+        device,
+        SAVE_PATH,
+        args.hyperparameters.epochs,
+        args.hyperparameters.validation_step,
+        args.hyperparameters.num_warmup_steps,
+        args.experiment_params.log_step,
+        args.experiment_params.save_step,
+        args.hyperparameters.max_grad_norm,
     )
 
     # Train model
@@ -150,13 +148,13 @@ if __name__ == "__main__":
 
     # Init wandb
     wandb.init(
-            project=args.wandb_project_name,
-            entity=args.wandb_entity,
-            sync_tensorboard=True,
-            config=vars(args),
-            name=EXPERIMENT_NAME,
-            save_code=True,
-        )
+        project=args.wandb_project_name,
+        entity=args.wandb_entity,
+        sync_tensorboard=True,
+        config=vars(args),
+        name=EXPERIMENT_NAME,
+        save_code=True,
+    )
 
     # Get environment variables
     world_size = int(os.environ.get("WORLD_SIZE", 1))
