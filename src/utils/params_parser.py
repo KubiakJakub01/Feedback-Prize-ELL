@@ -147,6 +147,12 @@ class Hyperparameters:
         },
         default=1.0,
     )
+    num_workers: int = field(
+        metadata={
+            "help": "The number of workers to use for data loading. Defaults to 1."
+        },
+        default=1,
+    )
 
 
 @dataclass
