@@ -120,6 +120,12 @@ class Hyperparameters:
         },
         default=0,
     )
+    max_grad_norm: float = field(
+        metadata={
+            "help": "The maximum value for the gradient clipping. Defaults to 1.0."
+        },
+        default=1.0,
+    )
 
 
 @dataclass
