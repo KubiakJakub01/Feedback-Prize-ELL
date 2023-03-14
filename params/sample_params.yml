@@ -3,11 +3,18 @@ experiment_params:
   wandb_project_name: "feedback-prize-ell"
   wandb_entity: None
   ddp: False
+  log_step: 10
+  save_step: 100
+  valid_step: 100
 
 model_params:
   model_checkpoint: bert-base-uncased
   model_name: bert
   save_path: models/
+  optimizer_name: adam
+  type_of_scheduler: linear
+  loss_fn: cross_entropy
+  
 
 data_params:
   train_data_path: data/train.csv
@@ -27,3 +34,6 @@ hyperparameters:
   batch_size: 32
   learning_rate: 1e-5
   max_length: 512
+  num_warmup_steps: 0
+  max_grad_norm: 1.0
+  num_workers: 1
