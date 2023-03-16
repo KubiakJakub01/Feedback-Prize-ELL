@@ -29,3 +29,14 @@ def text_cleaning(x, stop_words=stopwords.words("english")):
     x = re.sub(r"\w*\d+\w*", "", x)
     x = re.sub(r"\s{2,}", " ", x)
     return x
+
+
+def text_cleaning_pipeline(df, text_column):
+    """Clean the text.
+    Args:
+        df (pandas.DataFrame): Dataframe containing the text to clean.
+        text_column (str): Name of the column containing the text to clean.
+    Returns:
+        df (pandas.DataFrame): Dataframe with the cleaned text."""
+    df[text_column] = df[text_column].apply(lambda x: text_cleaning(x))
+    return df
