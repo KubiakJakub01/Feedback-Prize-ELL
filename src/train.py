@@ -22,7 +22,13 @@ import wandb
 from utils.params_parser import get_params
 from utils.data import create_data_loader
 from utils.ddp import init_ddp
-from utils.model_utils import get_optimizer, get_scheduler, get_loss_fn, get_model
+from utils.model_utils import (
+    get_optimizer,
+    get_scheduler,
+    get_loss_fn,
+    get_model,
+    get_device,
+)
 from utils.training import Trainer
 
 # Set up logging
@@ -41,13 +47,7 @@ def train(args):
     """
 
     # Define device
-    device = (
-        f"cuda:{local_rank}"
-        if args.ddp
-        else "cuda"
-        if torch.cuda.is_available()
-        else "cpu"
-    )
+    device = get_device(args.experiment_params.ddp)
 
     # Load model and tokenizer
     model, tokenizer = get_model(model_path=args.model_path, model_name=args.model_name)
