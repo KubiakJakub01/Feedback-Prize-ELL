@@ -3,6 +3,7 @@ Module with utils for training models.
 """
 import logging
 
+import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -10,13 +11,28 @@ import torch.optim as optim
 logger = logging.getLogger(__name__)
 
 
-def get_optimizer(optimizer_name: str, model: nn.Module, lr: float):
+def get_device(ddp: bool = False):
+    """
+    Get device.
+
+    Args:
+        ddp: Whether to use distributed data parallel.
+
+    Returns:
+        Device: PyTorch device.
+    """
+    if ddp:
+        return f"cuda:{torch.distributed.get_rank()}"
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
+def get_optimizer(model: nn.Module, optimizer_name: str, lr: float):
     """
     Get optimizer.
 
     Args:
-        optimizer_name: Name of optimizer.
         model: Model to optimize.
+        optimizer_name: Name of optimizer.
         lr: Learning rate.
 
     Returns:
@@ -39,8 +55,8 @@ def get_optimizer(optimizer_name: str, model: nn.Module, lr: float):
 
 
 def get_scheduler(
+    optimizer: optim.Optimizer,
     type_of_scheduler: str,
-    optimizer: optim,
     num_warmup_steps: int,
     num_training_steps: int,
 ):
@@ -48,8 +64,8 @@ def get_scheduler(
     Get learning rate scheduler.
 
     Args:
-        type_of_scheduler: Type of scheduler.
         optimizer: PyTorch optimizer.
+        type_of_scheduler: Type of scheduler.
         num_warmup_steps: Number of warmup steps.
         num_training_steps: Number of training steps.
 
@@ -77,35 +93,38 @@ def get_scheduler(
     raise ValueError(f"Scheduler {type_of_scheduler} not supported.")
 
 
-def get_loss_fn(loss_type):
+def get_loss_fn(loss_fn):
     """
     Get loss function.
+
+    Args:
+        loss_fn: Name of loss function.
 
     Returns:
         Loss: PyTorch loss function.
     """
-    if loss_type == "cross_entropy":
+    if loss_fn == "cross_entropy":
         return nn.CrossEntropyLoss()
-    elif loss_type == "bce":
+    elif loss_fn == "bce":
         return nn.BCELoss()
-    elif loss_type == "bce_with_logits":
+    elif loss_fn == "bce_with_logits":
         return nn.BCEWithLogitsLoss()
-    elif loss_type == "mse":
+    elif loss_fn == "mse":
         return nn.MSELoss()
-    elif loss_type == "l1":
+    elif loss_fn == "l1":
         return nn.L1Loss()
-    elif loss_type == "smooth_l1":
+    elif loss_fn == "smooth_l1":
         return nn.SmoothL1Loss()
-    elif loss_type == "kldiv":
+    elif loss_fn == "kldiv":
         return nn.KLDivLoss()
-    elif loss_type == "nll":
+    elif loss_fn == "nll":
         return nn.NLLLoss()
-    elif loss_type == "poisson_nll":
+    elif loss_fn == "poisson_nll":
         return nn.PoissonNLLLoss()
-    elif loss_type == "hinge_embedding":
+    elif loss_fn == "hinge_embedding":
         return nn.HingeEmbeddingLoss()
     
-    raise ValueError(f"Loss {loss_type} not supported.")
+    raise ValueError(f"Loss {loss_fn} not supported.")
 
 
 def get_model(model_path, model_name):
