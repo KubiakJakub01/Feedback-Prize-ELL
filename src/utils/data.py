@@ -2,7 +2,7 @@
 Module for data loading and preprocessing.
 """
 
-import os
+import re
 import sys
 import logging
 from pathlib import Path
@@ -19,16 +19,34 @@ from torch.utils.data.distributed import DistributedSampler
 logger = logging.getLogger(__name__)
 
 
+def load_data(data_path: str, text_col: str, numberic_col_list: list):
+    """
+    Load data.
+
+    Args:
+        data_path (str): Path to data.
+        text_col (str): Name of text column.
+        numberic_col_list (list): List of numberic column names.
+
+    Returns:
+        DataFrame: Pandas DataFrame.
+    """
+    data = pd.read_csv(data_path)
+    data[text_col] = data[text_col].astype(str)
+    data[numberic_col_list] = data[numberic_col_list].astype(np.float32)
+    return data
+
+
 def create_data_loader(
     data_path,
     tokenizer,
     text_col,
     numberic_col_list,
     max_length,
-    shuffle,
     ddp,
     batch_size,
     num_workers,
+    shuffle,
     pin_memory,
     drop_last,
 ):
@@ -41,10 +59,10 @@ def create_data_loader(
         text_col (str): Name of text column.
         numberic_col_list (list): List of numberic column names.
         max_length (int): Maximum length of a sequence.
-        shuffle (bool): Whether to shuffle the data.
         ddp (bool): Whether to use distributed data parallel.
         batch_size (int): Batch size.
         num_workers (int): Number of workers.
+        shuffle (bool): Whether to shuffle the data.
         pin_memory (bool): Whether to pin memory.
         drop_last (bool): Whether to drop last batch.
 
@@ -74,7 +92,6 @@ def create_data_loader(
     )
 
     return data_loader
-
 
 @dataclass
 class DataCollatorWithPadding:
