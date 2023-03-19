@@ -136,10 +136,10 @@ class TextDataset(Dataset):
             numberic_col_list (list): List of numberic column names.
             max_len (int): Maximum length of a sequence.
         """
-        self.data = pd.read_csv(data_path)
+        self.data = load_data(data_path, text_col, numberic_col_list)
         self.tokenizer = tokenizer
         self.text_col = text_col
-        self.numberic_col_list = numberic_col_list.copy()
+        self.numberic_col_list = numberic_col_list
         self.max_len = max_len
 
     def __len__(self):
