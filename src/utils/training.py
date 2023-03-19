@@ -235,3 +235,4 @@ class Trainer:
         for epoch in range(self.num_epochs):
             logger.info("Epoch {}/{}".format(epoch + 1, self.num_epochs))
             self.train_one_epoch(epoch)
+        logger.info("Training finished")
