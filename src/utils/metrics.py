@@ -6,8 +6,11 @@ import os
 import sys
 import logging
 from pathlib import Path
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
 
-# Import huggingface evaluation modules
+# Import torch and huggingface modules
+import torch
 import evaluate
 
 # Set up logging
@@ -44,3 +47,31 @@ def evaluate_model(model, data_loader, device, metrics):
     metric_values = {metric.name: metric.compute() for metric in metrics}
 
     return metric_values
+
+
+
+class Metric(ABC):
+    """
+    Abstract class for a metric.
+    """
+
+    @abstractmethod
+    def update(self, predictions, labels):
+        """
+        Update metric.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def compute(self):
+        """
+        Compute metric.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def reset(self):
+        """
+        Reset metric.
+        """
+        raise NotImplementedError
