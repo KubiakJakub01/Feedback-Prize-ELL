@@ -165,4 +165,13 @@ def get_model(model_path, model_name):
 
         return model, tokenizer
 
+    elif model_name == "albert":
+        from transformers import AlbertConfig, AlbertModel, AlbertTokenizer
+
+        configuration = AlbertConfig()
+        tokenizer = AlbertTokenizer.from_pretrained(model_path)
+        model = AlbertModel.from_pretrained(model_path, config=configuration)
+
+        return model, tokenizer
+
     raise ValueError(f"Model {model_name} not supported.")
