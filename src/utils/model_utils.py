@@ -156,4 +156,13 @@ def get_model(model_path, model_name):
 
         return model, tokenizer
 
+    elif model_name == "distilbert":
+        from transformers import DistilBertConfig, DistilBertModel, DistilBertTokenizer
+
+        configuration = DistilBertConfig()
+        tokenizer = DistilBertTokenizer.from_pretrained(model_path)
+        model = DistilBertModel.from_pretrained(model_path, config=configuration)
+
+        return model, tokenizer
+
     raise ValueError(f"Model {model_name} not supported.")
