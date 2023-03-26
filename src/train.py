@@ -125,6 +125,12 @@ def train(args):
     # Train model
     trainer.fit()
 
+    # Get end time of training with format yyyy-mm-dd hh:mm:ss
+    END_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Log end time of training
+    logger.info("Training ended at {}".format(END_TIME))
+
 
 if __name__ == "__main__":
     # Get start time of training with format yyyy-mm-dd hh:mm:ss
