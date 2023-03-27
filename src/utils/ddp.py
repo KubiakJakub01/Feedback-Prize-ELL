@@ -50,7 +50,7 @@ def if_main_process(func):
     """
 
     def wrapper(*args, **kwargs):
-        if dist.get_rank() == 0:
+        if check_main_process():
             return func(*args, **kwargs)
 
     return wrapper
