@@ -19,24 +19,6 @@ from torch.utils.data.distributed import DistributedSampler
 logger = logging.getLogger(__name__)
 
 
-def load_data(data_path: str, text_col: str, numberic_col_list: list):
-    """
-    Load data.
-
-    Args:
-        data_path (str): Path to data.
-        text_col (str): Name of text column.
-        numberic_col_list (list): List of numberic column names.
-
-    Returns:
-        DataFrame: Pandas DataFrame.
-    """
-    data = pd.read_csv(data_path)
-    data[text_col] = data[text_col].astype(str)
-    data[numberic_col_list] = data[numberic_col_list].astype(np.float32)
-    return data
-
-
 def create_data_loader(
     data_path,
     tokenizer,
@@ -93,6 +75,7 @@ def create_data_loader(
 
     return data_loader
 
+
 @dataclass
 class DataCollatorWithPadding:
     """
@@ -136,11 +119,29 @@ class TextDataset(Dataset):
             numberic_col_list (list): List of numberic column names.
             max_len (int): Maximum length of a sequence.
         """
-        self.data = load_data(data_path, text_col, numberic_col_list)
+        self.data = self.load_data(data_path, text_col, numberic_col_list)
         self.tokenizer = tokenizer
         self.text_col = text_col
         self.numberic_col_list = numberic_col_list
         self.max_len = max_len
+
+    @staticmethod
+    def load_data(data_path: str, text_col: str, numberic_col_list: list):
+        """
+        Load data.
+
+        Args:
+            data_path (str): Path to data.
+            text_col (str): Name of text column.
+            numberic_col_list (list): List of numberic column names.
+
+        Returns:
+            DataFrame: Pandas DataFrame.
+        """
+        data = pd.read_csv(data_path)
+        data[text_col] = data[text_col].astype(str)
+        data[numberic_col_list] = data[numberic_col_list].astype(np.float32)
+        return data
 
     def __len__(self):
         return len(self.data)
