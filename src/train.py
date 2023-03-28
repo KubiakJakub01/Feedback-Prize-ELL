@@ -26,7 +26,7 @@ from utils.model_utils import (
     get_optimizer,
     get_scheduler,
     get_loss_fn,
-    get_model,
+    get_model_and_tokenizer,
     get_device,
 )
 from utils.training import Trainer
@@ -50,7 +50,7 @@ def train(args):
     device = get_device(args.experiment_params.ddp)
 
     # Load model and tokenizer
-    model, tokenizer = get_model(model_path=args.model_path, model_name=args.model_name)
+    model, tokenizer = get_model_and_tokenizer(model_path=args.model_path, model_name=args.model_name)
     model.to(device)
 
     if args.ddp:

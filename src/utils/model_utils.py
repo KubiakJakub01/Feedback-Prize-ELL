@@ -127,7 +127,7 @@ def get_loss_fn(loss_fn):
     raise ValueError(f"Loss {loss_fn} not supported.")
 
 
-def get_model(model_path, model_name):
+def get_model_and_tokenizer(model_path, model_name):
     """
     Get model.
 
