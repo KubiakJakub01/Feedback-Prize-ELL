@@ -50,7 +50,18 @@ def if_main_process(func):
     """
 
     def wrapper(*args, **kwargs):
-        if dist.get_rank() == 0:
+        if check_main_process():
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def check_main_process():
+    """
+    Check if the current process is the main process.
+
+    Returns:
+        bool: True if the current process is the main process.
+    """
+
+    return dist.get_rank() == 0 
