@@ -174,4 +174,13 @@ def get_model_and_tokenizer(model_path, model_name):
 
         return model, tokenizer
 
+    elif model_name == "xlnet":
+        from transformers import XLNetConfig, XLNetModel, XLNetTokenizer
+
+        configuration = XLNetConfig()
+        tokenizer = XLNetTokenizer.from_pretrained(model_path)
+        model = XLNetModel.from_pretrained(model_path, config=configuration)
+
+        return model, tokenizer
+
     raise ValueError(f"Model {model_name} not supported.")
