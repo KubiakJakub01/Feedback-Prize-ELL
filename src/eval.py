@@ -15,6 +15,13 @@ import torch
 # Import wandb
 import wandb
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    datefmt="%m/%d/%Y %I:%M:%S %p",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    pass
+    pass    
