@@ -131,3 +131,22 @@ def get_args():
 if __name__ == "__main__":
     # Parse arguments
     param = get_args()    
+
+    # Load experiment parameters
+    experiment_params = get_args(param.experiment_params)
+
+    # Initialize wandb
+    if param.wandb:
+        wandb.init(
+            project=param.wandb_project,
+            name=param.wandb_run_name,
+            tags=param.wandb_tags,
+            entity=param.wandb_entity,
+            group=param.wandb_group,
+            notes=param.wandb_notes,
+            config=param.wandb_config,
+            resume=param.wandb_resume,
+            id=param.wandb_id,
+            dir=param.wandb_dir,
+            offline=param.wandb_offline,
+        )
