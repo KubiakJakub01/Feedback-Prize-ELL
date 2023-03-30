@@ -16,6 +16,7 @@ import wandb
 
 # Import custom modules
 from utils.model_utils import get_model_and_tokenizer, get_device
+from utils.data import create_data_loader
 
 logging.basicConfig(
     level=logging.INFO,
@@ -158,3 +159,13 @@ if __name__ == "__main__":
 
     # Get device
     device = get_device()
+
+    # Load data
+    test_loader = create_data_loader(
+        data_path=param.data_path,
+        tokenizer=tokenizer,
+        max_length=experiment_params.max_length,
+        batch_size=experiment_params.batch_size,
+        shuffle=False,
+        num_workers=experiment_params.num_workers,
+    )
