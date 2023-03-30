@@ -155,3 +155,6 @@ if __name__ == "__main__":
 
     # Load model and tokenizer
     model, tokenizer = get_model_and_tokenizer(model_path=param.model_path, model_name=param.model_name)
+
+    # Get device
+    device = get_device()
