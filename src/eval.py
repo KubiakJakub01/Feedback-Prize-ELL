@@ -11,9 +11,11 @@ from datetime import datetime
 
 # Import torch
 import torch
-
 # Import wandb
 import wandb
+
+# Import custom modules
+from utils.model_utils import get_model_and_tokenizer, get_device
 
 logging.basicConfig(
     level=logging.INFO,
@@ -150,3 +152,6 @@ if __name__ == "__main__":
             dir=param.wandb_dir,
             offline=param.wandb_offline,
         )
+
+    # Load model and tokenizer
+    model, tokenizer = get_model_and_tokenizer(model_path=param.model_path, model_name=param.model_name)
