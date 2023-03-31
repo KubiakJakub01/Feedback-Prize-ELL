@@ -16,38 +16,19 @@ import evaluate
 # Set up logging
 logger = logging.getLogger(__name__)
 
-def evaluate_model(model, data_loader, device, metrics):
+def load_metrics(metrics):
     """
-    Evaluate a model on a dataset.
+    Load metrics.
     """
-    # Set model to evaluation mode
-    model.eval()
-
     # Initialize metrics
+    metrics_list = []
     for metric in metrics:
-        metric.reset()
+        if metric == "accuracy":
+            metrics_list.append(Accuracy())
+        elif metric == "f1":
+             metrics_list.append(F1())
 
-    # Evaluate model
-    for batch in data_loader:
-        # Move batch to device
-        batch = {k: v.to(device) for k, v in batch.items()}
-
-        # Get model predictions
-        with torch.no_grad():
-            outputs = model(**batch)
-
-        # Get model predictions
-        predictions = outputs.logits
-
-        # Update metrics
-        for metric in metrics:
-            metric.update(predictions, batch["labels"])
-
-    # Get metric values
-    metric_values = {metric.name: metric.compute() for metric in metrics}
-
-    return metric_values
-
+    return metrics_list
 
 
 class Metric(ABC):
