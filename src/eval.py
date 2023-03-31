@@ -27,7 +27,48 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def get_predictions(model, test_loader, device):
+    """
+    Get predictions from a model.
+
+    Args:
+        model: Model to evaluate.
+        test_loader: Test dataloader.
+        device: Device to use.
+        params: Experiment parameters.
+    
+    Returns:
+        List of predictions.
+    """
+    # Set model to evaluation mode
+    model.eval()
+
+    # Initialize predictions
+    predictions = []
+
+    # Iterate over data
+    for batch in test_loader:
+        # Get data
+        inputs = batch["input_ids"].to(device)
+
+        # Forward pass
+        with torch.no_grad():
+            outputs = model(inputs)
+            predictions.extend(outputs[0].argmax(dim=1).tolist())
+
+    return predictions
+
+
 def eval(model, test_loader, device, params):
+    """
+    Evaluate a model.
+
+    Args:
+        model: Model to evaluate.
+        test_loader: Test dataloader.
+        device: Device to use.
+        params: Experiment parameters.
+    """
     pass
 
 
