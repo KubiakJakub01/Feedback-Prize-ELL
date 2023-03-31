@@ -172,7 +172,14 @@ def get_predictions(model, test_loader, device):
     return predictions
 
 
-def save_predictions(predictions, predictions_path):
+def save_predictions(predictions: list[float], predictions_path: str) -> None:
+    """
+    Save predictions to a file.
+
+    Args:
+        predictions: List of predictions.
+        predictions_path: Path to save predictions.
+    """
     Path(predictions_path).mkdir(parents=True, exist_ok=True)
     with open(os.path.join(predictions_path, f"predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"), "w") as f:
         for prediction in predictions:
