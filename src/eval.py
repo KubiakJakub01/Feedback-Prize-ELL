@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 import argparse
+from tqdm import tqdm
 from pathlib import Path
 from datetime import datetime
 
@@ -47,14 +48,22 @@ def get_predictions(model, test_loader, device):
     predictions = []
 
     # Iterate over data
-    for batch in test_loader:
-        # Get data
-        inputs = batch["input_ids"].to(device)
+    for batch in tqdm(test_loader,
+                      desc="Predicting...",
+                      total=len(test_loader),
+                      leave=False):
 
-        # Forward pass
+        # Get inputs
+        inputs = batch["inputs"].to(device)
+        attention_mask = batch["attention_mask"].to(device)
+        token_type_ids = batch["token_type_ids"].to(device)
+
+        # Get predictions
         with torch.no_grad():
-            outputs = model(inputs)
-            predictions.extend(outputs[0].argmax(dim=1).tolist())
+            outputs = model(inputs,
+                            attention_mask=attention_mask,
+                            token_type_ids=token_type_ids)
+            predictions.extend(outputs)
 
     return predictions
 
