@@ -18,6 +18,7 @@ import wandb
 # Import custom modules
 from utils.model_utils import get_model_and_tokenizer, get_device
 from utils.data import create_data_loader
+from utils.metrics import load_metrics
 
 logging.basicConfig(
     level=logging.INFO,
@@ -209,6 +210,9 @@ def eval(model, test_loader, device, params):
     if params.save_predictions:
         save_predictions(predictions, params.predictions_path)
 
+    # Calculate metrics
+    # TODO: Calculate metrics
+
 
 if __name__ == "__main__":
     # Parse arguments
@@ -248,6 +252,10 @@ if __name__ == "__main__":
         shuffle=False,
         num_workers=experiment_params.num_workers,
     )
+
+    # Load metrics
+    if experiment_params.metrics:
+        metrics = load_metrics(metrics=experiment_params.metrics)
 
     # Evaluate model
     eval(model=model, test_loader=test_loader, device=device, params=experiment_params)
