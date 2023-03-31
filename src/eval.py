@@ -27,6 +27,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def eval(model, test_loader, device, params):
+    pass
+
+
 def get_args():
     """
     Get arguments.
@@ -169,3 +173,6 @@ if __name__ == "__main__":
         shuffle=False,
         num_workers=experiment_params.num_workers,
     )
+
+    # Evaluate model
+    eval(model=model, test_loader=test_loader, device=device, params=experiment_params)
