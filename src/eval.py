@@ -28,59 +28,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_predictions(model, test_loader, device):
-    """
-    Get predictions from a model.
-
-    Args:
-        model: Model to evaluate.
-        test_loader: Test dataloader.
-        device: Device to use.
-        params: Experiment parameters.
-    
-    Returns:
-        List of predictions.
-    """
-    # Set model to evaluation mode
-    model.eval()
-
-    # Initialize predictions
-    predictions = []
-
-    # Iterate over data
-    for batch in tqdm(test_loader,
-                      desc="Predicting...",
-                      total=len(test_loader),
-                      leave=False):
-
-        # Get inputs
-        inputs = batch["inputs"].to(device)
-        attention_mask = batch["attention_mask"].to(device)
-        token_type_ids = batch["token_type_ids"].to(device)
-
-        # Get predictions
-        with torch.no_grad():
-            outputs = model(inputs,
-                            attention_mask=attention_mask,
-                            token_type_ids=token_type_ids)
-            predictions.extend(outputs)
-
-    return predictions
-
-
-def eval(model, test_loader, device, params):
-    """
-    Evaluate a model.
-
-    Args:
-        model: Model to evaluate.
-        test_loader: Test dataloader.
-        device: Device to use.
-        params: Experiment parameters.
-    """
-    pass
-
-
 def get_args():
     """
     Get arguments.
@@ -183,6 +130,77 @@ def get_args():
         help="Whether to run wandb offline.",
     )
     return parser.parse_args()
+
+
+def get_predictions(model, test_loader, device):
+    """
+    Get predictions from a model.
+
+    Args:
+        model: Model to evaluate.
+        test_loader: Test dataloader.
+        device: Device to use.
+        params: Experiment parameters.
+    
+    Returns:
+        List of predictions.
+    """
+    # Set model to evaluation mode
+    model.eval()
+
+    # Initialize predictions
+    predictions = []
+
+    # Iterate over data
+    for batch in tqdm(test_loader,
+                      desc="Predicting...",
+                      total=len(test_loader),
+                      leave=False):
+
+        # Get inputs
+        inputs = batch["inputs"].to(device)
+        attention_mask = batch["attention_mask"].to(device)
+        token_type_ids = batch["token_type_ids"].to(device)
+
+        # Get predictions
+        with torch.no_grad():
+            outputs = model(inputs,
+                            attention_mask=attention_mask,
+                            token_type_ids=token_type_ids)
+            predictions.extend(outputs)
+
+    return predictions
+
+
+def save_predictions(predictions, predictions_path):
+    Path(predictions_path).mkdir(parents=True, exist_ok=True)
+    with open(os.path.join(predictions_path, f"predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"), "w") as f:
+        for prediction in predictions:
+            f.write(prediction)
+
+
+def eval(model, test_loader, device, params):
+    """
+    Evaluate a model.
+
+    Args:
+        model: Model to evaluate.
+        test_loader: Test dataloader.
+        device: Device to use.
+        params: Experiment parameters.
+    """
+    # Get predictions
+    predictions = get_predictions(model=model,
+                                  test_loader=test_loader,
+                                  device=device)
+
+    # Log predictions
+    if params.wandb:
+        wandb.log({"predictions": wandb.Histogram(predictions)})
+
+    # Save predictions
+    if params.save_predictions:
+        save_predictions(predictions, params.predictions_path)
 
 
 if __name__ == "__main__":
