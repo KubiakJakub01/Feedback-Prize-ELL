@@ -18,7 +18,7 @@ import wandb
 # Import custom modules
 from utils.model_utils import get_model_and_tokenizer, get_device
 from utils.data import create_data_loader
-from utils.metrics import load_metrics
+from utils.metrics import load_metrics, compute_metrics
 
 logging.basicConfig(
     level=logging.INFO,
@@ -187,6 +187,20 @@ def save_predictions(predictions: list[float], predictions_path: str) -> None:
             f.write(prediction)
 
 
+def save_metrics(metrics: dict, metrics_path: str) -> None:
+    """
+    Save metrics to a file.
+
+    Args:
+        metrics: Dictionary of metrics.
+        metrics_path: Path to save metrics.
+    """
+    Path(metrics_path).mkdir(parents=True, exist_ok=True)
+    with open(os.path.join(metrics_path, f"metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"), "w") as f:
+        for metric, value in metrics.items():
+            f.write(f"{metric}: {value}")
+
+
 def eval(model, test_loader, device, params):
     """
     Evaluate a model.
@@ -211,7 +225,17 @@ def eval(model, test_loader, device, params):
         save_predictions(predictions, params.predictions_path)
 
     # Calculate metrics
-    # TODO: Calculate metrics
+    metrics = compute_metrics(predictions=predictions,
+                                labels=test_loader.dataset.labels)
+    
+    # Log metrics
+    if params.wandb:
+        wandb.log(metrics)
+
+    # Save metrics
+    if params.save_metrics:
+        save_metrics(metrics, params.metrics_path)
+
 
 
 if __name__ == "__main__":
