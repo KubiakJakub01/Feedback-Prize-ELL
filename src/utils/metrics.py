@@ -31,6 +31,17 @@ def load_metrics(metrics):
     return metrics_list
 
 
+def compute_metrics(metrics):
+    """
+    Compute metrics.
+    """
+    # Compute metrics
+    metrics_dict = {}
+    for metric in metrics:
+        metrics_dict[metric.name] = metric.compute()
+
+    return metrics_dict
+
 class Metric(ABC):
     """
     Abstract class for a metric.
