@@ -227,6 +227,24 @@ class Trainer:
         )
         torch.save(self.model.state_dict(), checpoint_dir / "model.pt")
 
+    def load_model(self, checkpoint_path):
+        """
+        Load model.
+
+        Args:
+            checkpoint_path (str): Path to checkpoint directory.
+        """
+        # Load checkpoint
+        checkpoint = torch.load(checkpoint_path / "checpoint.pt")
+        self.optimizer.load_state_dict(checkpoint["optimizer"])
+        self.scheduler.load_state_dict(checkpoint["scheduler"])
+        self.global_step = checkpoint["global_step"]
+        self.train_loss = checkpoint["train_loss"]
+        self.valid_loss = checkpoint["valid_loss"]
+
+        # Load model
+        self.model.load_state_dict(torch.load(checkpoint_path / "model.pt"))
+
     def fit(self):
         """
         Train model for specified number of epochs.
