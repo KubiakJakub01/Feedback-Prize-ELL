@@ -64,7 +64,7 @@ def check_main_process():
         bool: True if the current process is the main process.
     """
 
-    return dist.get_rank() == 0 
+    return get_rank() == 0 
 
 
 def get_world_size():
@@ -76,3 +76,14 @@ def get_world_size():
     """
 
     return dist.get_world_size()
+
+
+def get_rank():
+    """
+    Get the rank of the current process.
+
+    Returns:
+        int: Rank of the current process.
+    """
+
+    return dist.get_rank()
