@@ -65,3 +65,14 @@ def check_main_process():
     """
 
     return dist.get_rank() == 0 
+
+
+def get_world_size():
+    """
+    Get the number of processes in the world.
+
+    Returns:
+        int: Number of processes in the world.
+    """
+
+    return dist.get_world_size()
