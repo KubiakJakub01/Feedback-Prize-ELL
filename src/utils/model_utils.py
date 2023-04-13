@@ -183,4 +183,13 @@ def get_model_and_tokenizer(model_path, model_name):
 
         return model, tokenizer
 
+    elif model_name == "xlm":
+        from transformers import XLMConfig, XLMModel, XLMTokenizer
+
+        configuration = XLMConfig()
+        tokenizer = XLMTokenizer.from_pretrained(model_path)
+        model = XLMModel.from_pretrained(model_path, config=configuration)
+
+        return model, tokenizer
+
     raise ValueError(f"Model {model_name} not supported.")

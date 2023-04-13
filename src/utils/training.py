@@ -245,6 +245,7 @@ class Trainer:
         # Load model
         self.model.load_state_dict(torch.load(checkpoint_path / "model.pt"))
 
+
     def fit(self):
         """
         Train model for specified number of epochs.
