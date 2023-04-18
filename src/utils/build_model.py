@@ -43,3 +43,13 @@ class Model(nn.Module):
         return self.model(
             input_ids=input_ids, attention_mask=attention_mask, labels=labels
         )
+
+    def save(self, path: str):
+        """
+        Save model.
+
+        Args:
+            path: Path to save model.
+        """
+        torch.save(self.state_dict(), path)
+
