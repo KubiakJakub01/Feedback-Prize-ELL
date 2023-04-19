@@ -10,6 +10,19 @@ from transformers import AutoModelForSequenceClassification
 logger = logging.getLogger(__name__)
 
 
+class MeanPooling(nn.Module):
+    """
+    Mean pooling layer.
+    """
+
+    def __init__(self):
+        """
+        Initialize mean pooling layer.
+        """
+        super(MeanPooling, self).__init__()
+
+
+
 class Model(nn.Module):
     """
     Model class.
@@ -27,6 +40,7 @@ class Model(nn.Module):
         self.model = AutoModelForSequenceClassification.from_pretrained(
             model_name, num_labels=num_classes
         )
+
 
     def forward(self, input_ids, attention_mask, labels=None):
         """
