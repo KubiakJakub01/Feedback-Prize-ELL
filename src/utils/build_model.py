@@ -57,6 +57,29 @@ class WeightedLayerPooling(nn.Module):
         self.num_layers = num_layers
         self.weights = nn.Parameter(torch.ones(num_layers))
 
+    def forward(self, last_hidden_state, attention_mask):
+        """
+        Forward pass.
+
+        Args:
+            last_hidden_state: Last hidden state.
+            attention_mask: Attention mask.
+
+        Returns:
+            Weighted layer pooled output.
+        """
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
+            last_hidden_state.size()
+        ).float()
+        sum_embeddings = torch.sum(last_hidden_state * input_mask_expanded, 1)
+        sum_mask = input_mask_expanded.sum(1)
+        sum_mask = torch.clamp(sum_mask, min=1e-9)
+        weights = torch.nn.functional.softmax(self.weights, dim=0)
+        weighted_sum = 0
+        for i in range(self.num_layers):
+            weighted_sum += weights[i] * last_hidden_state[:, i, :]
+        return weighted_sum
+
 
 class Model(nn.Module):
     """
