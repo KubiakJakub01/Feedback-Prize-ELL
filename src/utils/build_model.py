@@ -41,6 +41,23 @@ class MeanPooling(nn.Module):
         return sum_embeddings / sum_mask
 
 
+class WeightedLayerPooling(nn.Module):
+    """
+    Weighted layer pooling layer.
+    """
+
+    def __init__(self, num_layers: int):
+        """
+        Initialize weighted layer pooling layer.
+
+        Args:
+            num_layers: Number of layers.
+        """
+        super(WeightedLayerPooling, self).__init__()
+        self.num_layers = num_layers
+        self.weights = nn.Parameter(torch.ones(num_layers))
+
+
 class Model(nn.Module):
     """
     Model class.
