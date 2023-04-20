@@ -81,6 +81,22 @@ class WeightedLayerPooling(nn.Module):
         return weighted_sum
 
 
+class LSTMPooling(nn.Module):
+    def __init__(self, hidden_size: int):
+        """
+        Initialize LSTM pooling layer.
+
+        Args:
+            hidden_size: Hidden size.
+        """
+        super(LSTMPooling, self).__init__()
+        self.lstm = nn.LSTM(
+            input_size=hidden_size,
+            hidden_size=hidden_size,
+            num_layers=1,
+            bidirectional=True,
+        )
+
 class Model(nn.Module):
     """
     Model class.
