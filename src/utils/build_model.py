@@ -97,6 +97,26 @@ class LSTMPooling(nn.Module):
             bidirectional=True,
         )
 
+    def forward(self, last_hidden_state, attention_mask):
+        """
+        Forward pass.
+
+        Args:
+            last_hidden_state: Last hidden state.
+            attention_mask: Attention mask.
+
+        Returns:
+            LSTM pooled output.
+        """
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
+            last_hidden_state.size()
+        ).float()
+        sum_mask = input_mask_expanded.sum(1)
+        sum_mask = torch.clamp(sum_mask, min=1e-9)
+        _, (hidden, _) = self.lstm(last_hidden_state)
+        hidden = torch.cat([hidden[0], hidden[1]], dim=1)
+        return hidden
+
 class Model(nn.Module):
     """
     Model class.
