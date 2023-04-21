@@ -117,6 +117,17 @@ class LSTMPooling(nn.Module):
         hidden = torch.cat([hidden[0], hidden[1]], dim=1)
         return hidden
 
+class ConcatPooling(nn.Module):
+    def __init__(self, hidden_size: int):
+        """
+        Initialize concat pooling layer.
+
+        Args:
+            hidden_size: Hidden size.
+        """
+        super(ConcatPooling, self).__init__()
+        self.hidden_size = hidden_size
+
 class Model(nn.Module):
     """
     Model class.
