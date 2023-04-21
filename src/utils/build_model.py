@@ -128,6 +128,25 @@ class ConcatPooling(nn.Module):
         super(ConcatPooling, self).__init__()
         self.hidden_size = hidden_size
 
+    def forward(self, last_hidden_state, attention_mask):
+        """
+        Forward pass.
+
+        Args:
+            last_hidden_state: Last hidden state.
+            attention_mask: Attention mask.
+
+        Returns:
+            Concat pooled output.
+        """
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
+            last_hidden_state.size()
+        ).float()
+        sum_mask = input_mask_expanded.sum(1)
+        sum_mask = torch.clamp(sum_mask, min=1e-9)
+        hidden = torch.cat([last_hidden_state[:, 0, :], last_hidden_state[:, -1, :]], dim=1)
+        return hidden
+
 class Model(nn.Module):
     """
     Model class.
