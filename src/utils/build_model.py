@@ -167,3 +167,4 @@ class CustomModel(nn.Module):
         else:
             raise ValueError("Invalid pooling type")
 
+        self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
