@@ -168,3 +168,10 @@ class CustomModel(nn.Module):
             raise ValueError("Invalid pooling type")
 
         self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
+
+    def feature(self, inputs):
+        outputs = self.model(**inputs)
+        last_hidden_state = outputs.last_hidden_state
+        attention_mask = inputs["attention_mask"]
+        return self.pooling(last_hidden_state, attention_mask)
+    
