@@ -175,3 +175,6 @@ class CustomModel(nn.Module):
         attention_mask = inputs["attention_mask"]
         return self.pooling(last_hidden_state, attention_mask)
     
+    def forward(self, inputs):
+        pooled_output = self.feature(inputs)
+        return self.fc(pooled_output)
