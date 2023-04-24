@@ -178,3 +178,7 @@ class CustomModel(nn.Module):
     def forward(self, inputs):
         pooled_output = self.feature(inputs)
         return self.fc(pooled_output)
+
+    def save(self, path):
+        torch.save(self.state_dict(), path)
+
