@@ -184,3 +184,9 @@ class CustomModel(nn.Module):
 
     def load(self, path):
         self.load_state_dict(torch.load(path))
+
+    def freeze(self):
+        for param in self.model.parameters():
+            param.requires_grad = False
+        for param in self.fc.parameters():
+            param.requires_grad = True
