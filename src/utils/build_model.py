@@ -190,3 +190,7 @@ class CustomModel(nn.Module):
             param.requires_grad = False
         for param in self.fc.parameters():
             param.requires_grad = True
+
+    def _init_weight(self, module):
+        if isinstance(module, nn.Linear):
+            module.weight.data.normal_(mean=0.0)
