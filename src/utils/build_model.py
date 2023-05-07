@@ -194,3 +194,6 @@ class CustomModel(nn.Module):
     def _init_weight(self, module):
         if isinstance(module, nn.Linear):
             module.weight.data.normal_(mean=0.0)
+            if module.bias is not None:
+                module.bias.data.zero_()
+                
