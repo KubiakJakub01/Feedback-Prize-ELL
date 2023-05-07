@@ -196,4 +196,8 @@ class CustomModel(nn.Module):
             module.weight.data.normal_(mean=0.0)
             if module.bias is not None:
                 module.bias.data.zero_()
-                
+        elif isinstance(module, nn.Embedding):
+            module.weight.data.normal_(mean=0.0, std=0.02)
+            if module.padding_idx is not None:
+                module.weight.data[module.padding_idx].zero_()
+
