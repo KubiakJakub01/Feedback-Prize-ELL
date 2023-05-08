@@ -40,3 +40,7 @@ def text_cleaning_pipeline(df, text_column):
         df (pandas.DataFrame): Dataframe with the cleaned text."""
     df[text_column] = df[text_column].apply(lambda x: text_cleaning(x))
     return df
+
+def define_encodings(text: str) -> str:
+    """Define encodings."""
+    return text.encode("utf-8", "ignore").decode("ascii", "ignore")
