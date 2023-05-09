@@ -10,6 +10,10 @@ from nltk.corpus import stopwords
 # I have already downloaded all-nltk
 # nltk.download()
 
+placeholders_replacements = {
+    'Generic_School': '[GENERIC_SCHOOL]',
+}
+
 def text_cleaning(x, stop_words=stopwords.words("english")):
     """Clean the text.
     Args:
@@ -45,3 +49,4 @@ def text_cleaning_pipeline(df, text_column):
 def define_encodings(text: str) -> str:
     """Define encodings."""
     return text.encode("utf-8", "ignore").decode("ascii", "ignore")
+
