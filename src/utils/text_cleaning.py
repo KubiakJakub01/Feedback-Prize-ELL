@@ -50,6 +50,17 @@ def text_cleaning(x, stop_words=stopwords.words("english")):
     return x
 
 
+def replace_placeholders(text: str) -> str:
+    """Replace placeholders.
+    Args:
+        text (str): Text to replace placeholders.
+    Returns:
+        text (str): Text with placeholders replaced."""
+    for placeholder, replacement in placeholders_replacements.items():
+        text = text.replace(placeholder, replacement)
+    return text
+
+
 def text_cleaning_pipeline(df, text_column):
     """Clean the text.
     Args:
