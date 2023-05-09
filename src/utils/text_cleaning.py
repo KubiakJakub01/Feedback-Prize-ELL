@@ -12,6 +12,21 @@ from nltk.corpus import stopwords
 
 placeholders_replacements = {
     'Generic_School': '[GENERIC_SCHOOL]',
+    'Generic_school': '[GENERIC_SCHOOL]',
+    'SCHOOL_NAME': '[SCHOOL_NAME]',
+    'STUDENT_NAME': '[STUDENT_NAME]',
+    'Generic_Name': '[GENERIC_NAME]',
+    'Genric_Name': '[GENERIC_NAME]',
+    'Generic_City': '[GENERIC_CITY]',
+    'LOCATION_NAME': '[LOCATION_NAME]',
+    'HOTEL_NAME': '[HOTEL_NAME]',
+    'LANGUAGE_NAME': '[LANGUAGE_NAME]',
+    'PROPER_NAME': '[PROPER_NAME]',
+    'OTHER_NAME': '[OTHER_NAME]',
+    'PROEPR_NAME': '[PROPER_NAME]',
+    'RESTAURANT_NAME': '[RESTAURANT_NAME]',
+    'STORE_NAME': '[STORE_NAME]',
+    'TEACHER_NAME': '[TEACHER_NAME]',
 }
 
 def text_cleaning(x, stop_words=stopwords.words("english")):
