@@ -153,6 +153,12 @@ class Hyperparameters:
         },
         default=1,
     )
+    truncate: bool = field(
+        metadata={
+            "help": "Whether to truncate the input sequences to the maximum length."
+        },
+        default=True,
+    )
 
 
 @dataclass
