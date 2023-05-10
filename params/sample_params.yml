@@ -37,3 +37,4 @@ hyperparameters:
   num_warmup_steps: 0
   max_grad_norm: 1.0
   num_workers: 1
+  truncate: true
