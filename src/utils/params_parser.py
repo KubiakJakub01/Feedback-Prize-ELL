@@ -175,6 +175,12 @@ class Hyperparameters:
         },
         default=False,
     )
+    fp16_opt_level: Literal["O0", "O1", "O2", "O3"] = field(
+        metadata={
+            "help": "The optimization level to use for half precision training. Defaults to O1."
+        },
+        default="O1",
+    )
 
 
 @dataclass
