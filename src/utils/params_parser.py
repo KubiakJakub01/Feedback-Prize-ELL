@@ -169,6 +169,12 @@ class Hyperparameters:
         metadata={"help": "The seed to use for reproducibility. Defaults to 42."},
         default=42,
     )
+    fp16: bool = field(
+        metadata={
+            "help": "Whether to use half precision training. Defaults to False."
+        },
+        default=False,
+    )
 
 
 @dataclass
