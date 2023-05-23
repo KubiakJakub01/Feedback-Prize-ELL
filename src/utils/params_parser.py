@@ -165,6 +165,10 @@ class Hyperparameters:
         },
         default=True,
     )
+    seed: int = field(
+        metadata={"help": "The seed to use for reproducibility. Defaults to 42."},
+        default=42,
+    )
 
 
 @dataclass
