@@ -181,6 +181,12 @@ class Hyperparameters:
         },
         default="O1",
     )
+    fp16_backend: Literal["auto", "amp", "apex"] = field(
+        metadata={
+            "help": "The backend to use for half precision training. Defaults to auto."
+        },
+        default="auto",
+    )
 
 
 @dataclass
