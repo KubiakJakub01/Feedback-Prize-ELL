@@ -82,3 +82,9 @@ def lematize_text(text: str) -> str:
     """Lematize text."""
     lemmatizer = nltk.stem.WordNetLemmatizer()
     return " ".join([lemmatizer.lemmatize(word) for word in text.split(" ")])
+
+
+def stem_text(text: str) -> str:
+    """Stem text."""
+    stemmer = nltk.stem.PorterStemmer()
+    return " ".join([stemmer.stem(word) for word in text.split(" ")])
