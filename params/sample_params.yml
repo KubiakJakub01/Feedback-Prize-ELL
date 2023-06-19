@@ -39,3 +39,4 @@ hyperparameters:
   max_grad_norm: 1.0
   num_workers: 1
   truncate: true
+  fp16_backend: "auto"
