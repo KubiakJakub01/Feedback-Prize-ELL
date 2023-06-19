@@ -4,7 +4,7 @@ Text cleaning pipeline
 # Import libraries for text processing
 import re
 import string
-# import nltk
+import nltk
 from nltk.corpus import stopwords
 
 # I have already downloaded all-nltk
@@ -77,3 +77,8 @@ def define_encodings(text: str) -> str:
     """Define encodings."""
     return text.encode("utf-8", "ignore").decode("ascii", "ignore")
 
+
+def lematize_text(text: str) -> str:
+    """Lematize text."""
+    lemmatizer = nltk.stem.WordNetLemmatizer()
+    return " ".join([lemmatizer.lemmatize(word) for word in text.split(" ")])
