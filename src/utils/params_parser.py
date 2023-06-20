@@ -230,13 +230,15 @@ def get_params(yaml_file_path):
     if not os.path.exists(yaml_file_path):
         raise FileNotFoundError(f"File not found at {yaml_file_path}")
 
-    with open(yaml_file_path) as f:
-        params_dict = yaml.safe_load(f)
-        params = Params(
-            experiment_params=ExperimentParams(**params_dict["experiment_params"]),
-            model_params=ModelParams(**params_dict["model_params"]),
-            data_params=DataParams(**params_dict["data_params"]),
-            training_params=Hyperparameters(**params_dict["training_params"]),
-        )
+    if yaml_file_path.endswith(".yaml") or yaml_file_path.endswith(".yml"):
+        # Load parameters from yaml file
+        with open(yaml_file_path) as f:
+            params_dict = yaml.safe_load(f)
+            params = Params(
+                experiment_params=ExperimentParams(**params_dict["experiment_params"]),
+                model_params=ModelParams(**params_dict["model_params"]),
+                data_params=DataParams(**params_dict["data_params"]),
+                training_params=Hyperparameters(**params_dict["training_params"]),
+            )
 
     return params
