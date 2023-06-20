@@ -3,6 +3,7 @@ Module for parsing parameters from yaml files.
 """
 import os
 import yaml
+import json
 from dataclasses import dataclass, field
 from typing import List, Optional, Literal
 
@@ -234,6 +235,16 @@ def get_params(yaml_file_path):
         # Load parameters from yaml file
         with open(yaml_file_path) as f:
             params_dict = yaml.safe_load(f)
+            params = Params(
+                experiment_params=ExperimentParams(**params_dict["experiment_params"]),
+                model_params=ModelParams(**params_dict["model_params"]),
+                data_params=DataParams(**params_dict["data_params"]),
+                training_params=Hyperparameters(**params_dict["training_params"]),
+            )
+    elif yaml_file_path.endswith(".json"):
+        # Load parameters from json file
+        with open(yaml_file_path) as f:
+            params_dict = json.load(f)
             params = Params(
                 experiment_params=ExperimentParams(**params_dict["experiment_params"]),
                 model_params=ModelParams(**params_dict["model_params"]),
