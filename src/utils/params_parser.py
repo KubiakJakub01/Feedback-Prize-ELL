@@ -251,5 +251,9 @@ def get_params(yaml_file_path):
                 data_params=DataParams(**params_dict["data_params"]),
                 training_params=Hyperparameters(**params_dict["training_params"]),
             )
+    else:
+        raise ValueError(
+            "Invalid file type. File must be either YAML (.yaml or .yml) or JSON (.json)"
+        )
 
     return params
