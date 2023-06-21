@@ -2,6 +2,9 @@
 transformers==4.26.0
 evluate==0.4.0
 
+# Tensorboard
+tensorboard==2.13.0
+
 # Install other dependencies
 scikit-learn==1.2.2
 wandb==0.15.4
