@@ -241,7 +241,7 @@ def get_params(yaml_file_path):
                 experiment_params=ExperimentParams(**params_dict["experiment_params"]),
                 model_params=ModelParams(**params_dict["model_params"]),
                 data_params=DataParams(**params_dict["data_params"]),
-                training_params=Hyperparameters(**params_dict["training_params"]),
+                hyperparameters=Hyperparameters(**params_dict["hyperparameters"]),
             )
     elif yaml_file_path.endswith(".json"):
         # Load parameters from json file
@@ -251,7 +251,7 @@ def get_params(yaml_file_path):
                 experiment_params=ExperimentParams(**params_dict["experiment_params"]),
                 model_params=ModelParams(**params_dict["model_params"]),
                 data_params=DataParams(**params_dict["data_params"]),
-                training_params=Hyperparameters(**params_dict["training_params"]),
+                hyperparameters=Hyperparameters(**params_dict["hyperparameters"]),
             )
     else:
         raise ValueError(
