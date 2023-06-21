@@ -16,13 +16,13 @@ def get_args():
     parser.add_argument(
         "--data_path",
         type=str,
-        default="Data/train.csv",
+        default="data/train.csv",
         help="The path to the CSV file containing the training data.",
     )
     parser.add_argument(
         "--save_path",
         type=Path,
-        default=Path("Data/"),
+        default=Path("data/"),
         help="The path to save the train and validation data.",
     )
     parser.add_argument(
