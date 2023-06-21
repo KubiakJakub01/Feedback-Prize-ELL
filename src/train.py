@@ -12,7 +12,6 @@ from pathlib import Path
 from datetime import datetime
 
 # Import torch
-import torch
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 # Import wandb
@@ -145,17 +144,17 @@ if __name__ == "__main__":
         logger.error(message)
         raise ValueError(message)
 
-    MODEL_PATH = Path(args.mode_path)
+    MODEL_PATH = Path(args.model_params.model_checkpoint)
     MODEL_NAME = MODEL_PATH.name
     EXPERIMENT_NAME = f"{MODEL_NAME}_{START_TIME}"
 
     # Define save path
-    SAVE_PATH = Path(args.save_path) / EXPERIMENT_NAME
+    SAVE_PATH = Path(args.model_params.save_path) / EXPERIMENT_NAME
 
     # Init wandb
     wandb.init(
-        project=args.wandb_project_name,
-        entity=args.wandb_entity,
+        project=args.experiment_params.wandb_project_name,
+        entity=args.experiment_params.wandb_entity,
         sync_tensorboard=True,
         config=vars(args),
         name=EXPERIMENT_NAME,
