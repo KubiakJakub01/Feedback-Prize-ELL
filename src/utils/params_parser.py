@@ -18,13 +18,15 @@ class ExperimentParams:
         default=False,
     )
     wandb_project_name: Optional[str] = field(
-        metadata={"help": "The name of the wandb project to use."}
+        metadata={"help": "The name of the wandb project to use."},
+        default="feedback-prize-ell",
     )
     wandb_entity: Optional[str] = field(
         metadata={
             "help": "(Optional) The name of the wandb entity to use. \
                                                   If not provided, wandb will use the default entity."
-        }
+        },
+        default=None,
     )
     ddp: Optional[bool] = field(
         metadata={
