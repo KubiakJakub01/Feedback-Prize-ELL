@@ -22,8 +22,10 @@ def get_device(ddp: bool = False):
         Device: PyTorch device.
     """
     if ddp:
-        return f"cuda:{torch.distributed.get_rank()}"
-    return "cuda" if torch.cuda.is_available() else "cpu"
+        device = f"cuda:{torch.distributed.get_rank()}"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info("Use %s device", device)
+    return device
 
 
 def get_optimizer(model: nn.Module, optimizer_name: str, lr: float):
@@ -138,6 +140,7 @@ def get_model_and_tokenizer(model_path, model_name):
     Returns:
         Model, Tokenizer: Huggingface model and tokenizer.
     """
+    logger.info("Loading %s from checkpoint %s", model_name, model_path)
     if model_name == "bert":
         from transformers import BertConfig, BertModel, BertTokenizer
 

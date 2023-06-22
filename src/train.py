@@ -47,17 +47,25 @@ def train(args: Params):
 
     # Define device
     device = get_device(args.experiment_params.ddp)
+    logger.info("Use %s device", device)
     # Get environment variables
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
 
     # Load model and tokenizer
-    model, tokenizer = get_model_and_tokenizer(model_path=args.model_params.model_checkpoint, model_name=args.model_params.model_name)
+    model, tokenizer = get_model_and_tokenizer(
+        model_path=args.model_params.model_checkpoint,
+        model_name=args.model_params.model_name,
+    )
     model.to(device)
 
     if args.experiment_params.ddp:
         # Initialize distributed training
-        init_ddp(rank=local_rank, world_size=world_size, backend=args.experiment_params.backend)
+        init_ddp(
+            rank=local_rank,
+            world_size=world_size,
+            backend=args.experiment_params.backend,
+        )
         model = DDP(model, device_ids=[device])
 
     # Load training dataloader
@@ -91,17 +99,17 @@ def train(args: Params):
     )
 
     # Define loss function
-    loss_fn = get_loss_fn(args.model.loss_fn)
+    loss_fn = get_loss_fn(args.model_params.loss_fn)
 
     # Define optimizer
     optimizer = get_optimizer(
-        model, args.model.optimizer_name, args.hyperparameters.learning_rate
+        model, args.model_params.optimizer_name, args.hyperparameters.learning_rate
     )
 
     # Define scheduler
     scheduler = get_scheduler(
         optimizer,
-        args.model.type_of_scheduler,
+        args.model_params.type_of_scheduler,
         args.hyperparameters.num_warmup_steps,
         num_training_steps=len(train_data_loader) * args.hyperparameters.epochs,
     )
