@@ -18,7 +18,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import wandb
 
 # Import custom modules
-from utils.params_parser import get_params
+from utils.params_parser import get_params, Params
 from utils.data import create_data_loader
 from utils.ddp import init_ddp
 from utils.model_utils import (
@@ -40,21 +40,24 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def train(args):
+def train(args: Params):
     """
     Train a model.
     """
 
     # Define device
     device = get_device(args.experiment_params.ddp)
+    # Get environment variables
+    world_size = int(os.environ.get("WORLD_SIZE", 1))
+    local_rank = int(os.environ.get("LOCAL_RANK", 0))
 
     # Load model and tokenizer
-    model, tokenizer = get_model_and_tokenizer(model_path=args.model_path, model_name=args.model_name)
+    model, tokenizer = get_model_and_tokenizer(model_path=args.model_params.model_checkpoint, model_name=args.model_params.model_name)
     model.to(device)
 
-    if args.ddp:
+    if args.experiment_params.ddp:
         # Initialize distributed training
-        init_ddp(rank=local_rank, world_size=args.world_size, backend=args.backend)
+        init_ddp(rank=local_rank, world_size=world_size, backend=args.experiment_params.backend)
         model = DDP(model, device_ids=[device])
 
     # Load training dataloader
@@ -152,18 +155,14 @@ if __name__ == "__main__":
     SAVE_PATH = Path(args.model_params.save_path) / EXPERIMENT_NAME
 
     # Init wandb
-    wandb.init(
-        project=args.experiment_params.wandb_project_name,
-        entity=args.experiment_params.wandb_entity,
-        sync_tensorboard=True,
-        config=vars(args),
-        name=EXPERIMENT_NAME,
-        save_code=True,
-    )
-
-    # Get environment variables
-    world_size = int(os.environ.get("WORLD_SIZE", 1))
-    local_rank = int(os.environ.get("LOCAL_RANK", 0))
+    # wandb.init(
+    #     project=args.experiment_params.wandb_project_name,
+    #     entity=args.experiment_params.wandb_entity,
+    #     sync_tensorboard=True,
+    #     config=vars(args),
+    #     name=EXPERIMENT_NAME,
+    #     save_code=True,
+    # )
 
     # Train model
     train(args)

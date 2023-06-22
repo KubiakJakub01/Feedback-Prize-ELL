@@ -15,7 +15,6 @@ model_params:
   type_of_scheduler: linear
   loss_fn: cross_entropy
   
-
 data_params:
   train_data_path: data/train.csv
   valid_data_path: data/valid.csv
