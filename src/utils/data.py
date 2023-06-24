@@ -23,7 +23,7 @@ def create_data_loader(
     data_path: str,
     tokenizer: object,
     text_col: str,
-    numberic_col_list: list,
+    numberic_col_list: list[str],
     max_length: int,
     ddp: bool,
     batch_size: int,
@@ -110,20 +110,27 @@ class TextDataset(Dataset):
     Dataset for text classification.
     """
 
-    def __init__(self, data_path, tokenizer, text_col, numberic_col_list, max_len=128):
+    def __init__(
+        self,
+        data_path: str,
+        tokenizer: object,
+        text_col: str,
+        numberic_col_list: list[str],
+        max_length: int = 128,
+    ):
         """
         Args:
-            data_path (str): Path to data.
-            tokenizer (BertTokenizer): Tokenizer for encoding text.
-            text_col (str): Name of text column.
-            numberic_col_list (list): List of numberic column names.
-            max_len (int): Maximum length of a sequence.
+            data_path: Path to data.
+            tokenizer: Tokenizer for encoding text.
+            text_col: Name of text column.
+            numberic_col_list: List of numberic column names.
+            max_len: Maximum length of a sequence.
         """
         self.data = self.load_data(data_path, text_col, numberic_col_list)
         self.tokenizer = tokenizer
         self.text_col = text_col
         self.numberic_col_list = numberic_col_list
-        self.max_len = max_len
+        self.max_length = max_length
 
     @staticmethod
     def load_data(data_path: str, text_col: str, numberic_col_list: list):
@@ -160,7 +167,7 @@ class TextDataset(Dataset):
         encoding = self.tokenizer.encode_plus(
             text,
             add_special_tokens=True,
-            max_length=self.max_len,
+            max_length=self.max_length,
             return_token_type_ids=False,
             padding="max_length",
             return_attention_mask=True,
