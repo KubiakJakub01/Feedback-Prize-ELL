@@ -47,7 +47,6 @@ def train(args: Params):
 
     # Define device
     device = get_device(args.experiment_params.ddp)
-    logger.info("Use %s device", device)
     # Get environment variables
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
@@ -163,14 +162,16 @@ if __name__ == "__main__":
     SAVE_PATH = Path(args.model_params.save_path) / EXPERIMENT_NAME
 
     # Init wandb
-    # wandb.init(
-    #     project=args.experiment_params.wandb_project_name,
-    #     entity=args.experiment_params.wandb_entity,
-    #     sync_tensorboard=True,
-    #     config=vars(args),
-    #     name=EXPERIMENT_NAME,
-    #     save_code=True,
-    # )
+    if args.experiment_params.track:
+        logger.info("Init wandb")
+        wandb.init(
+            project=args.experiment_params.wandb_project_name,
+            entity=args.experiment_params.wandb_entity,
+            sync_tensorboard=True,
+            config=vars(args),
+            name=EXPERIMENT_NAME,
+            save_code=True,
+        )
 
     # Train model
     train(args)
