@@ -6,7 +6,7 @@ import os
 import sys
 import logging
 from pathlib import Path
-from dataclasses import dataclass
+
 from tqdm import tqdm
 
 import torch
@@ -19,37 +19,71 @@ from torch.utils.tensorboard import SummaryWriter
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class Trainer:
     """
     Class for training a model.
     """
 
-    model: nn.Module
-    optimizer: optim.Optimizer
-    scheduler: optim.lr_scheduler.LambdaLR
-    loss_fn: nn.Module
-    train_data_loader: DataLoader
-    valid_data_loader: DataLoader
-    device: torch.device
-    save_path: Path
-    num_epochs: int
-    validation_step: int
-    num_warmup_steps: int
-    log_step: int
-    save_step: int
-    max_grad_norm: float
-    f16: bool = False
-
-    def __post_init__(self):
+    def __init__(
+        self,
+        model: nn.Module,
+        optimizer: optim.Optimizer,
+        scheduler: optim.lr_scheduler,
+        loss_fn: nn.Module,
+        train_data_loader: DataLoader,
+        valid_data_loader: DataLoader,
+        device: torch.device,
+        save_path: Path,
+        num_epochs: int,
+        validation_step: int,
+        num_warmup_steps: int,
+        log_step: int,
+        save_step: int,
+        max_grad_norm: float,
+        f16: bool = False,
+    ):
         """
         Initialize trainer.
+
+        Args:
+            model: Model to train.
+            optimizer: Optimizer to use for training.
+            scheduler: Scheduler to use for training.
+            loss_fn: Loss function to use for training.
+            train_data_loader: Data loader for training data.
+            valid_data_loader: Data loader for validation data.
+            device: Device to use for training.
+            save_path: Path to save model checkpoints.
+            num_epochs: Number of epochs to train for.
+            validation_step: Number of steps between validation.
+            num_warmup_steps: Number of warmup steps for scheduler.
+            log_step: Number of steps between logging.
+            save_step: Number of steps between saving.
+            max_grad_norm: Maximum value for gradient clipping.
+            f16: Whether to use float16.
         """
+
+        self.model = model
+        self.optimizer = optimizer
+        self.scheduler = scheduler
+        self.loss_fn = loss_fn
+        self.train_data_loader = train_data_loader
+        self.valid_data_loader = valid_data_loader
+        self.device = device
+        self.save_path = save_path
+        self.num_epochs = num_epochs
+        self.validation_step = validation_step
+        self.num_warmup_steps = num_warmup_steps
+        self.log_step = log_step
+        self.save_step = save_step
+        self.max_grad_norm = max_grad_norm
+        self.f16 = f16
+
         # Initialize tensorboard writer
         self.writer = SummaryWriter(log_dir=self.save_path / "tensorboard")
 
         # Create torch GrandScaler
-        self.scaler = torch.cuda.amp.GradScaler(f16=self.f16)
+        self.scaler = torch.cuda.amp.GradScaler()
 
         # Initialize global step
         self.global_step = 0
@@ -244,7 +278,6 @@ class Trainer:
 
         # Load model
         self.model.load_state_dict(torch.load(checkpoint_path / "model.pt"))
-
 
     def fit(self):
         """
