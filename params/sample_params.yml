@@ -12,7 +12,7 @@ model_params:
   model_name: bert
   save_path: models/
   optimizer_name: adam
-  type_of_scheduler: linear
+  type_of_scheduler: one_cycle
   loss_fn: cross_entropy
   
 data_params:

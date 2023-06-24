@@ -111,6 +111,7 @@ def train(args: Params):
         args.model_params.type_of_scheduler,
         args.hyperparameters.num_warmup_steps,
         num_training_steps=len(train_data_loader) * args.hyperparameters.epochs,
+        epochs=args.hyperparameters.epochs,
     )
 
     # Define trainer

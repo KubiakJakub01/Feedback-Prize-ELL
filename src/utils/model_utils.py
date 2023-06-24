@@ -63,6 +63,7 @@ def get_scheduler(
     type_of_scheduler: str,
     num_warmup_steps: int,
     num_training_steps: int,
+    epochs: int
 ):
     """
     Get learning rate scheduler.
@@ -77,23 +78,17 @@ def get_scheduler(
         Scheduler: PyTorch scheduler.
     """
     if type_of_scheduler == "linear":
-        return optim_scheduler.get_linear_schedule_with_warmup(
-            optimizer, num_warmup_steps, num_training_steps
-        )
+        return optim_scheduler.LinearLR(optimizer)
     elif type_of_scheduler == "cosine":
-        return optim_scheduler.get_cosine_schedule_with_warmup(
-            optimizer, num_warmup_steps, num_training_steps
-        )
+        return optim_scheduler.CosineAnnealingLR(optimizer, num_training_steps)
     elif type_of_scheduler == "cosine_with_restarts":
-        return optim_scheduler.get_cosine_with_hard_restarts_schedule_with_warmup(
-            optimizer, num_warmup_steps, num_training_steps
-        )
+        return optim_scheduler.CosineAnnealingWarmRestarts(optimizer, num_training_steps)
     elif type_of_scheduler == "one_cycle":
         return optim_scheduler.OneCycleLR(
             optimizer,
             max_lr=0.01,
             steps_per_epoch=num_training_steps,
-            epochs=num_training_steps,
+            epochs=epochs,
         )
     raise ValueError(f"Scheduler {type_of_scheduler} not supported.")
 
