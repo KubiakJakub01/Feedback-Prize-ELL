@@ -191,6 +191,12 @@ class Hyperparameters:
         default="auto",
     )
 
+    def __post_init__(self):
+        """
+        Post initialization.
+        """
+        self.learning_rate = float(self.learning_rate)
+
 
 @dataclass
 class Params:
