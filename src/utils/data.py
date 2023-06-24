@@ -20,33 +20,33 @@ logger = logging.getLogger(__name__)
 
 
 def create_data_loader(
-    data_path,
-    tokenizer,
-    text_col,
-    numberic_col_list,
-    max_length,
-    ddp,
-    batch_size,
-    num_workers,
-    shuffle,
-    pin_memory,
-    drop_last,
-):
+    data_path: str,
+    tokenizer: object,
+    text_col: str,
+    numberic_col_list: list,
+    max_length: int,
+    ddp: bool,
+    batch_size: int,
+    num_workers: int,
+    shuffle: bool,
+    pin_memory: bool,
+    drop_last: bool,
+) -> DataLoader:
     """
     Create a data loader for a given dataset.
 
     Args:
-        data_path (str): Path to data.
-        tokenizer (BertTokenizer): Tokenizer for encoding text.
-        text_col (str): Name of text column.
-        numberic_col_list (list): List of numberic column names.
-        max_length (int): Maximum length of a sequence.
-        ddp (bool): Whether to use distributed data parallel.
-        batch_size (int): Batch size.
-        num_workers (int): Number of workers.
-        shuffle (bool): Whether to shuffle the data.
-        pin_memory (bool): Whether to pin memory.
-        drop_last (bool): Whether to drop last batch.
+        data_path: Path to data.
+        tokenizer: Tokenizer for encoding text.
+        text_col: Name of text column.
+        numberic_col_list: List of numberic column names.
+        max_length: Maximum length of a sequence.
+        ddp: Whether to use distributed data parallel.
+        batch_size: Batch size.
+        num_workers: Number of workers.
+        shuffle: Whether to shuffle the data.
+        pin_memory: Whether to pin memory.
+        drop_last: Whether to drop last batch.
 
     Returns:
         DataLoader: PyTorch data loader.
