@@ -6,6 +6,7 @@ import logging
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.optim.lr_scheduler as optim_scheduler
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ def get_optimizer(model: nn.Module, optimizer_name: str, lr: float):
     Returns:
         Optimizer: PyTorch optimizer.
     """
+    logger.info("Using %s optimizer with learning rate %f", optimizer_name, lr)
     if optimizer_name == "adam":
         return optim.Adam(model.parameters(), lr=lr)
     elif optimizer_name == "adamw":
@@ -75,22 +77,23 @@ def get_scheduler(
         Scheduler: PyTorch scheduler.
     """
     if type_of_scheduler == "linear":
-        return optim.linear_scheduler(optimizer, num_warmup_steps, num_training_steps)
+        return optim_scheduler.get_linear_schedule_with_warmup(
+            optimizer, num_warmup_steps, num_training_steps
+        )
     elif type_of_scheduler == "cosine":
-        return optim.cosine_scheduler(optimizer, num_warmup_steps, num_training_steps)
+        return optim_scheduler.get_cosine_schedule_with_warmup(
+            optimizer, num_warmup_steps, num_training_steps
+        )
     elif type_of_scheduler == "cosine_with_restarts":
-        return optim.cosine_with_restarts_scheduler(
+        return optim_scheduler.get_cosine_with_hard_restarts_schedule_with_warmup(
             optimizer, num_warmup_steps, num_training_steps
         )
     elif type_of_scheduler == "one_cycle":
-        return optim.one_cycle_scheduler(
-            optimizer, num_warmup_steps, num_training_steps
-        )
-    elif type_of_scheduler == "lambdalr":
-        return optim.lr_scheduler.LambdaLR(
+        return optim_scheduler.OneCycleLR(
             optimizer,
-            lr_lambda=lambda step: min(1.0, step / num_warmup_steps)
-            / (1.0 - step / num_training_steps),
+            max_lr=0.01,
+            steps_per_epoch=num_training_steps,
+            epochs=num_training_steps,
         )
     raise ValueError(f"Scheduler {type_of_scheduler} not supported.")
 
