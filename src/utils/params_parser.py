@@ -57,6 +57,40 @@ class ExperimentParams:
         default=100,
     )
 
+@dataclass
+class ModelConfig:
+    model_checkpoint: str = field(
+        metadata={
+            "help": "The name or path of the pre-trained model checkpoint to use."
+        }
+    )
+    model_name: str = field(
+        metadata={"help": "The name of the model architecture being used."}
+    )
+    pooling: Literal["mean", "weighted", "lstm", "concat"] = field(
+        metadata={
+            "help": "The type of pooling to use for the model. Defaults to mean."
+        },
+        default="mean",
+    )
+    num_layers: int = field(
+        metadata={
+            "help": "The number of layers to use for the weighted pooling. Defaults to 2."
+        },
+        default=2,
+    )
+    hidden_size: int = field(
+        metadata={
+            "help": "The hidden size to use for the pooling. Defaults to 768."
+        },
+        default=768,
+    )
+    num_classes: int = field(
+        metadata={
+            "help": "The number of classes to use for the model. Defaults to 6."
+        },
+        default=6,
+    )
 
 @dataclass
 class ModelParams:
