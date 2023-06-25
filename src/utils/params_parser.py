@@ -94,13 +94,8 @@ class ModelConfig:
 
 @dataclass
 class ModelParams:
-    model_checkpoint: str = field(
-        metadata={
-            "help": "The name or path of the pre-trained model checkpoint to use."
-        }
-    )
-    model_name: str = field(
-        metadata={"help": "The name of the model architecture being used."}
+    model_config: ModelConfig = field(
+        metadata={"help": "The configuration for the model."}
     )
     save_path: str = field(metadata={"help": "The path to save the trained model."})
     optimizer_name: Literal[
