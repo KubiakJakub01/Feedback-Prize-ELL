@@ -14,7 +14,7 @@ from .params_parser import ModelConfig
 logger = logging.getLogger(__name__)
 
 
-def get_device(ddp: bool = False):
+def get_device(default_device: str, ddp: bool = False):
     """
     Get device.
 
@@ -24,9 +24,16 @@ def get_device(ddp: bool = False):
     Returns:
         Device: PyTorch device.
     """
-    if ddp:
-        device = f"cuda:{torch.distributed.get_rank()}"
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if default_device == "cuda":
+        if not torch.cuda.is_available():
+            logger.warning("Cuda is not available. Using cpu instead.")
+            device = "cpu"
+        elif ddp:
+            device = f"cuda:{torch.distributed.get_rank()}"
+        else:
+            device = "cuda"
+    else:
+        device = "cpu"
     logger.info("Use %s device", device)
     return device
 

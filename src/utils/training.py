@@ -103,6 +103,11 @@ class Trainer:
         attention_mask = batch["attention_mask"].to(self.device)
         labels = batch["labels"].to(self.device)
 
+        logger.debug(f"input_ids: {input_ids} (shape: {input_ids.shape})")
+        logger.debug(
+            f"attention_mask: {attention_mask} (shape: {attention_mask.shape})"
+        )
+
         return input_ids, attention_mask, labels
 
     @torch.no_grad()
@@ -181,9 +186,9 @@ class Trainer:
                 attention_mask=attention_mask,
             )
             # Calculate loss
-            loss = self.loss_fn(logits, labels)
-
-        logits = outputs[0]
+            logger.debug(f"labels: {labels} (shape: {labels.shape})")
+            logger.debug(f"outputs: {outputs} (shape: {outputs.shape})")
+            loss = self.loss_fn(outputs, labels)
 
         # Backpropagate loss
         with torch.cuda.amp.autocast():

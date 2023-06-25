@@ -111,14 +111,14 @@ class LSTMPooling(nn.Module):
         Returns:
             LSTM pooled output.
         """
-        input_mask_expanded = (
-            attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
-        )
-        sum_mask = input_mask_expanded.sum(1)
-        sum_mask = torch.clamp(sum_mask, min=1e-9)
-        _, (hidden, _) = self.lstm(last_hidden_state)
-        hidden = torch.cat([hidden[0], hidden[1]], dim=1)
-        return hidden
+        # Process sequence with LSTM
+        output, _ = self.lstm(last_hidden_state)
+        # Apply pooling
+        masked_output = output * attention_mask.unsqueeze(-1)
+        sum_mask = torch.clamp(attention_mask.sum(dim=1, keepdim=True), min=1e-9)
+        pooled_output = masked_output.sum(dim=1) / sum_mask
+
+        return pooled_output
 
 
 class ConcatPooling(nn.Module):
@@ -185,12 +185,13 @@ class CustomModel(nn.Module):
 
     def feature(self, **inputs):
         outputs = self.model(**inputs)
-        last_hidden_state = outputs.last_hidden_state
-        attention_mask = inputs["attention_mask"]
-        return self.pooling(last_hidden_state, attention_mask)
+        last_hidden_states = outputs.hidden_states[-1]
+        logger.debug("Last hidden states shape: %s", last_hidden_states.shape)
+        return self.pooling(last_hidden_states, inputs["attention_mask"])
 
     def forward(self, **inputs):
         pooled_output = self.feature(**inputs)
+        logger.debug("Pooled output shape: %s", pooled_output.shape)
         return self.fc(pooled_output)
 
     def save(self, path):
