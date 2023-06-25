@@ -149,7 +149,15 @@ class ConcatPooling(nn.Module):
 
 
 class CustomModel(nn.Module):
+    """Class for custom model architecture.
+    
+    Model architecture:
+    1. Pretrained model
+    2. Pooling layer
+    3. Fully connected linear layer"""
+
     def __init__(self, cfg) -> None:
+        """Build custom model from config"""
         super().__init__()
         self.cfg = cfg
         self.model = AutoModel.from_pretrained(
