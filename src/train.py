@@ -3,15 +3,17 @@ Entry point for training the model.
 """
 
 # Standard library imports
-import argparse
 import os
 import sys
-import time
+import random
 import logging
 from pathlib import Path
 from datetime import datetime
 
+import numpy as np
+
 # Import torch
+import torch
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 # Import wandb
@@ -32,12 +34,24 @@ from utils.training import Trainer
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=os.environ.get("LOGLEVEL", "INFO"),
     format="%(asctime)s | %(levelname)s | %(message)s",
     datefmt="%m/%d/%Y %I:%M:%S",
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
+
+
+def init_seed(seed: int):
+    """
+    Initialize seed for reproducibility.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
 
 def train(args: Params):
@@ -46,7 +60,7 @@ def train(args: Params):
     """
 
     # Define device
-    device = get_device(args.experiment_params.ddp)
+    device = get_device(args.experiment_params.device, args.experiment_params.ddp)
     # Get environment variables
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
@@ -140,6 +154,9 @@ def train(args: Params):
 
 
 if __name__ == "__main__":
+    # Initialize seed
+    init_seed(42)
+
     # Get start time of training with format yyyy-mm-dd hh:mm:ss
     START_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.info("Starting training at {}".format(START_TIME))

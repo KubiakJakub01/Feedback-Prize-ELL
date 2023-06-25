@@ -28,6 +28,12 @@ class ExperimentParams:
         },
         default=None,
     )
+    device: Literal["cuda", "cpu"] = field(
+        metadata={
+            "help": "(Optional) The device to use for training. Defaults to cuda if available."
+        },
+        default="cuda",
+    )
     ddp: Optional[bool] = field(
         metadata={
             "help": "(Optional) Whether to use Distributed Data Parallel (DDP) for training."
