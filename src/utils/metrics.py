@@ -16,6 +16,7 @@ import evaluate
 # Set up logging
 logger = logging.getLogger(__name__)
 
+
 def load_metrics(metrics):
     """
     Load metrics.
@@ -26,7 +27,7 @@ def load_metrics(metrics):
         if metric == "accuracy":
             metrics_list.append(Accuracy())
         elif metric == "f1":
-             metrics_list.append(F1())
+            metrics_list.append(F1())
 
     return metrics_list
 
@@ -41,6 +42,7 @@ def compute_metrics(metrics):
         metrics_dict[metric.name] = metric.compute()
 
     return metrics_dict
+
 
 class Metric(ABC):
     """

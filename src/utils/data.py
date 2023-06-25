@@ -71,16 +71,15 @@ def create_data_loader(
         batch_size=batch_size,
         shuffle=False if ddp else shuffle,
         sampler=data_sampler,
-        collate_fn=DataCollatorWithPadding(tokenizer=tokenizer,
-                                           padding=padding,
-                                           max_length=max_length),
+        collate_fn=DataCollatorWithPadding(
+            tokenizer=tokenizer, padding=padding, max_length=max_length
+        ),
         num_workers=num_workers,
         pin_memory=pin_memory,
         drop_last=drop_last,
     )
 
     return data_loader
-
 
 
 class TextDataset(Dataset):
@@ -158,5 +157,5 @@ class TextDataset(Dataset):
         return {
             "input_ids": encoding["input_ids"].flatten(),
             "attention_mask": encoding["attention_mask"].flatten(),
-            "labels": tensor(labels, dtype=float32)
+            "labels": tensor(labels, dtype=float32),
         }

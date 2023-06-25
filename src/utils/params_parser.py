@@ -57,6 +57,7 @@ class ExperimentParams:
         default=100,
     )
 
+
 @dataclass
 class ModelConfig:
     model_checkpoint: str = field(
@@ -80,23 +81,18 @@ class ModelConfig:
         default=2,
     )
     hidden_size: int = field(
-        metadata={
-            "help": "The hidden size to use for the pooling. Defaults to 768."
-        },
+        metadata={"help": "The hidden size to use for the pooling. Defaults to 768."},
         default=768,
     )
     num_classes: int = field(
-        metadata={
-            "help": "The number of classes to use for the model. Defaults to 6."
-        },
+        metadata={"help": "The number of classes to use for the model. Defaults to 6."},
         default=6,
     )
 
+
 @dataclass
 class ModelParams:
-    config: ModelConfig = field(
-        metadata={"help": "The configuration for the model."}
-    )
+    config: ModelConfig = field(metadata={"help": "The configuration for the model."})
     save_path: str = field(metadata={"help": "The path to save the trained model."})
     optimizer_name: Literal[
         "adam", "adamw", "sgd", "adagrad", "adadelta", "rmsprop"
@@ -208,9 +204,7 @@ class Hyperparameters:
         default=42,
     )
     fp16: bool = field(
-        metadata={
-            "help": "Whether to use half precision training. Defaults to False."
-        },
+        metadata={"help": "Whether to use half precision training. Defaults to False."},
         default=False,
     )
     fp16_opt_level: Literal["O0", "O1", "O2", "O3"] = field(
@@ -254,7 +248,7 @@ def get_params(yaml_file_path):
     Get parameters from a YAML file.
     Args:
         yaml_file_path (str): The path to the YAML file containing the parameters.
-    
+
     Returns:
         Params: The parameters from the YAML file.
     """

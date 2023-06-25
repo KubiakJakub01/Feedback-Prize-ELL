@@ -12,6 +12,7 @@ from datetime import datetime
 
 # Import torch
 import torch
+
 # Import wandb
 import wandb
 
@@ -142,7 +143,7 @@ def get_predictions(model, test_loader, device):
         test_loader: Test dataloader.
         device: Device to use.
         params: Experiment parameters.
-    
+
     Returns:
         List of predictions.
     """
@@ -153,11 +154,9 @@ def get_predictions(model, test_loader, device):
     predictions = []
 
     # Iterate over data
-    for batch in tqdm(test_loader,
-                      desc="Predicting...",
-                      total=len(test_loader),
-                      leave=False):
-
+    for batch in tqdm(
+        test_loader, desc="Predicting...", total=len(test_loader), leave=False
+    ):
         # Get inputs
         inputs = batch["inputs"].to(device)
         attention_mask = batch["attention_mask"].to(device)
@@ -165,9 +164,9 @@ def get_predictions(model, test_loader, device):
 
         # Get predictions
         with torch.no_grad():
-            outputs = model(inputs,
-                            attention_mask=attention_mask,
-                            token_type_ids=token_type_ids)
+            outputs = model(
+                inputs, attention_mask=attention_mask, token_type_ids=token_type_ids
+            )
             predictions.extend(outputs)
 
     return predictions
@@ -182,7 +181,13 @@ def save_predictions(predictions: list[float], predictions_path: str) -> None:
         predictions_path: Path to save predictions.
     """
     Path(predictions_path).mkdir(parents=True, exist_ok=True)
-    with open(os.path.join(predictions_path, f"predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"), "w") as f:
+    with open(
+        os.path.join(
+            predictions_path,
+            f"predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+        ),
+        "w",
+    ) as f:
         for prediction in predictions:
             f.write(prediction)
 
@@ -196,7 +201,12 @@ def save_metrics(metrics: dict, metrics_path: str) -> None:
         metrics_path: Path to save metrics.
     """
     Path(metrics_path).mkdir(parents=True, exist_ok=True)
-    with open(os.path.join(metrics_path, f"metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"), "w") as f:
+    with open(
+        os.path.join(
+            metrics_path, f"metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        ),
+        "w",
+    ) as f:
         for metric, value in metrics.items():
             f.write(f"{metric}: {value}")
 
@@ -212,9 +222,7 @@ def eval(model, test_loader, device, params):
         params: Experiment parameters.
     """
     # Get predictions
-    predictions = get_predictions(model=model,
-                                  test_loader=test_loader,
-                                  device=device)
+    predictions = get_predictions(model=model, test_loader=test_loader, device=device)
 
     # Log predictions
     if params.wandb:
@@ -225,9 +233,10 @@ def eval(model, test_loader, device, params):
         save_predictions(predictions, params.predictions_path)
 
     # Calculate metrics
-    metrics = compute_metrics(predictions=predictions,
-                                labels=test_loader.dataset.labels)
-    
+    metrics = compute_metrics(
+        predictions=predictions, labels=test_loader.dataset.labels
+    )
+
     # Log metrics
     if params.wandb:
         wandb.log(metrics)
@@ -237,10 +246,9 @@ def eval(model, test_loader, device, params):
         save_metrics(metrics, params.metrics_path)
 
 
-
 if __name__ == "__main__":
     # Parse arguments
-    param = get_args()    
+    param = get_args()
 
     # Load experiment parameters
     experiment_params = get_args(param.experiment_params)
@@ -262,7 +270,9 @@ if __name__ == "__main__":
         )
 
     # Load model and tokenizer
-    model, tokenizer = get_model_and_tokenizer(model_path=param.model_path, model_name=param.model_name)
+    model, tokenizer = get_model_and_tokenizer(
+        model_path=param.model_path, model_name=param.model_name
+    )
 
     # Get device
     device = get_device()

@@ -65,7 +65,7 @@ def get_scheduler(
     type_of_scheduler: str,
     num_warmup_steps: int,
     num_training_steps: int,
-    epochs: int
+    epochs: int,
 ):
     """
     Get learning rate scheduler.
@@ -84,7 +84,9 @@ def get_scheduler(
     elif type_of_scheduler == "cosine":
         return optim_scheduler.CosineAnnealingLR(optimizer, num_training_steps)
     elif type_of_scheduler == "cosine_with_restarts":
-        return optim_scheduler.CosineAnnealingWarmRestarts(optimizer, num_training_steps)
+        return optim_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, num_training_steps
+        )
     elif type_of_scheduler == "one_cycle":
         return optim_scheduler.OneCycleLR(
             optimizer,
@@ -125,7 +127,7 @@ def get_loss_fn(loss_fn):
         return nn.PoissonNLLLoss()
     elif loss_fn == "hinge_embedding":
         return nn.HingeEmbeddingLoss()
-    
+
     raise ValueError(f"Loss {loss_fn} not supported.")
 
 

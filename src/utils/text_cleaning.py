@@ -11,23 +11,24 @@ from nltk.corpus import stopwords
 # nltk.download()
 
 placeholders_replacements = {
-    'Generic_School': '[GENERIC_SCHOOL]',
-    'Generic_school': '[GENERIC_SCHOOL]',
-    'SCHOOL_NAME': '[SCHOOL_NAME]',
-    'STUDENT_NAME': '[STUDENT_NAME]',
-    'Generic_Name': '[GENERIC_NAME]',
-    'Genric_Name': '[GENERIC_NAME]',
-    'Generic_City': '[GENERIC_CITY]',
-    'LOCATION_NAME': '[LOCATION_NAME]',
-    'HOTEL_NAME': '[HOTEL_NAME]',
-    'LANGUAGE_NAME': '[LANGUAGE_NAME]',
-    'PROPER_NAME': '[PROPER_NAME]',
-    'OTHER_NAME': '[OTHER_NAME]',
-    'PROEPR_NAME': '[PROPER_NAME]',
-    'RESTAURANT_NAME': '[RESTAURANT_NAME]',
-    'STORE_NAME': '[STORE_NAME]',
-    'TEACHER_NAME': '[TEACHER_NAME]',
+    "Generic_School": "[GENERIC_SCHOOL]",
+    "Generic_school": "[GENERIC_SCHOOL]",
+    "SCHOOL_NAME": "[SCHOOL_NAME]",
+    "STUDENT_NAME": "[STUDENT_NAME]",
+    "Generic_Name": "[GENERIC_NAME]",
+    "Genric_Name": "[GENERIC_NAME]",
+    "Generic_City": "[GENERIC_CITY]",
+    "LOCATION_NAME": "[LOCATION_NAME]",
+    "HOTEL_NAME": "[HOTEL_NAME]",
+    "LANGUAGE_NAME": "[LANGUAGE_NAME]",
+    "PROPER_NAME": "[PROPER_NAME]",
+    "OTHER_NAME": "[OTHER_NAME]",
+    "PROEPR_NAME": "[PROPER_NAME]",
+    "RESTAURANT_NAME": "[RESTAURANT_NAME]",
+    "STORE_NAME": "[STORE_NAME]",
+    "TEACHER_NAME": "[TEACHER_NAME]",
 }
+
 
 def text_cleaning(x, stop_words=stopwords.words("english")):
     """Clean the text.
@@ -40,7 +41,7 @@ def text_cleaning(x, stop_words=stopwords.words("english")):
     x = " ".join([word for word in x.split(" ") if word not in stop_words])
     x = x.encode("ascii", "ignore").decode()
     x = re.sub(r"https*\S+", " ", x)
-    x = re.sub(r'\n', " ", x)
+    x = re.sub(r"\n", " ", x)
     x = re.sub(r"@\S+", " ", x)
     x = re.sub(r"#\S+", " ", x)
     x = re.sub(r"\'\w+", "", x)
@@ -72,6 +73,7 @@ def text_cleaning_pipeline(df, text_column):
     df[text_column] = df[text_column].apply(lambda x: define_encodings(x))
     df[text_column] = df[text_column].apply(lambda x: replace_placeholders(x))
     return df
+
 
 def define_encodings(text: str) -> str:
     """Define encodings."""
