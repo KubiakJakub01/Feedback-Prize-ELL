@@ -94,7 +94,7 @@ class ModelConfig:
 
 @dataclass
 class ModelParams:
-    model_config: ModelConfig = field(
+    config: ModelConfig = field(
         metadata={"help": "The configuration for the model."}
     )
     save_path: str = field(metadata={"help": "The path to save the trained model."})
@@ -131,6 +131,12 @@ class ModelParams:
         },
         default="cross_entropy",
     )
+
+    def __post_init__(self):
+        """
+        Post initialization.
+        """
+        self.config = ModelConfig(**self.config)
 
 
 @dataclass

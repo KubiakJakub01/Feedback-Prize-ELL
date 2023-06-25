@@ -11,6 +11,7 @@ from dataclasses import dataclass
 import pandas as pd
 import numpy as np
 
+from transformers import DataCollatorWithPadding
 from torch import tensor, float32, int64
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.distributed import DistributedSampler
@@ -31,6 +32,7 @@ def create_data_loader(
     shuffle: bool,
     pin_memory: bool,
     drop_last: bool,
+    padding: str = "max_length",
 ) -> DataLoader:
     """
     Create a data loader for a given dataset.
@@ -56,6 +58,7 @@ def create_data_loader(
         tokenizer=tokenizer,
         text_col=text_col,
         numberic_col_list=numberic_col_list,
+        padding=padding,
         max_length=max_length,
     )
 
@@ -68,6 +71,9 @@ def create_data_loader(
         batch_size=batch_size,
         shuffle=False if ddp else shuffle,
         sampler=data_sampler,
+        collate_fn=DataCollatorWithPadding(tokenizer=tokenizer,
+                                           padding=padding,
+                                           max_length=max_length),
         num_workers=num_workers,
         pin_memory=pin_memory,
         drop_last=drop_last,
@@ -75,34 +81,6 @@ def create_data_loader(
 
     return data_loader
 
-
-@dataclass
-class DataCollatorWithPadding:
-    """
-    Data collator that will dynamically pad the inputs received.
-    """
-
-    def __call__(self, batch):
-        """
-        Args:
-            batch (list): List of dictionary of input_ids, attention_mask, and labels.
-
-        Returns:
-            dict: Dictionary containing input_ids, attention_mask, and labels.
-        """
-        input_ids = [item["input_ids"] for item in batch]
-        attention_mask = [item["attention_mask"] for item in batch]
-        labels = [item["labels"] for item in batch]
-
-        input_ids = tensor(input_ids, dtype=int64)
-        attention_mask = tensor(attention_mask, dtype=int64)
-        labels = tensor(labels, dtype=float32)
-
-        return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "labels": labels,
-        }
 
 
 class TextDataset(Dataset):
@@ -116,6 +94,7 @@ class TextDataset(Dataset):
         tokenizer: object,
         text_col: str,
         numberic_col_list: list[str],
+        padding: str = "max_length",
         max_length: int = 128,
     ):
         """
@@ -130,6 +109,7 @@ class TextDataset(Dataset):
         self.tokenizer = tokenizer
         self.text_col = text_col
         self.numberic_col_list = numberic_col_list
+        self.padding = padding
         self.max_length = max_length
 
     @staticmethod
@@ -164,19 +144,19 @@ class TextDataset(Dataset):
         text = self.data.loc[idx, self.text_col]
         labels = self.data.loc[idx, self.numberic_col_list]
 
-        encoding = self.tokenizer.encode_plus(
+        encoding = self.tokenizer(
             text,
-            add_special_tokens=True,
+            truncation=True,
+            padding=self.padding,
             max_length=self.max_length,
+            add_special_tokens=True,
             return_token_type_ids=False,
-            padding="max_length",
             return_attention_mask=True,
             return_tensors="pt",
         )
 
         return {
-            "text": text,
             "input_ids": encoding["input_ids"].flatten(),
             "attention_mask": encoding["attention_mask"].flatten(),
-            "labels": tensor(labels, dtype=float32),
+            "labels": tensor(labels, dtype=float32)
         }

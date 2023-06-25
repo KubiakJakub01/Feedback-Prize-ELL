@@ -141,14 +141,14 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         Model, Tokenizer: Huggingface model and tokenizer.
     """
     model_name = model_cfg.model_name
-    model_path = model_cfg.model_path
-    logger.info("Loading %s from checkpoint %s", model_name, model_path)
+    model_checkpoint = model_cfg.model_checkpoint
+    logger.info("Loading %s from checkpoint %s", model_name, model_checkpoint)
     if model_name == "custom_model":
-        from .model_utils import CustomModel
+        from .build_model import CustomModel
         from transformers import AutoTokenizer
 
         model = CustomModel(model_cfg)
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 
         return model, tokenizer
 
@@ -156,8 +156,8 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import BertConfig, BertModel, BertTokenizer
 
         configuration = BertConfig()
-        tokenizer = BertTokenizer.from_pretrained(model_path)
-        model = BertModel.from_pretrained(model_path, config=configuration)
+        tokenizer = BertTokenizer.from_pretrained(model_checkpoint)
+        model = BertModel.from_pretrained(model_checkpoint, config=configuration)
 
         return model, tokenizer
 
@@ -165,8 +165,8 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import RobertaConfig, RobertaModel, RobertaTokenizer
 
         configuration = RobertaConfig()
-        tokenizer = RobertaTokenizer.from_pretrained(model_path)
-        model = RobertaModel.from_pretrained(model_path, config=configuration)
+        tokenizer = RobertaTokenizer.from_pretrained(model_checkpoint)
+        model = RobertaModel.from_pretrained(model_checkpoint, config=configuration)
 
         return model, tokenizer
 
@@ -174,8 +174,8 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import DistilBertConfig, DistilBertModel, DistilBertTokenizer
 
         configuration = DistilBertConfig()
-        tokenizer = DistilBertTokenizer.from_pretrained(model_path)
-        model = DistilBertModel.from_pretrained(model_path, config=configuration)
+        tokenizer = DistilBertTokenizer.from_pretrained(model_checkpoint)
+        model = DistilBertModel.from_pretrained(model_checkpoint, config=configuration)
 
         return model, tokenizer
 
@@ -183,8 +183,8 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import AlbertConfig, AlbertModel, AlbertTokenizer
 
         configuration = AlbertConfig()
-        tokenizer = AlbertTokenizer.from_pretrained(model_path)
-        model = AlbertModel.from_pretrained(model_path, config=configuration)
+        tokenizer = AlbertTokenizer.from_pretrained(model_checkpoint)
+        model = AlbertModel.from_pretrained(model_checkpoint, config=configuration)
 
         return model, tokenizer
 
@@ -192,8 +192,8 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import XLNetConfig, XLNetModel, XLNetTokenizer
 
         configuration = XLNetConfig()
-        tokenizer = XLNetTokenizer.from_pretrained(model_path)
-        model = XLNetModel.from_pretrained(model_path, config=configuration)
+        tokenizer = XLNetTokenizer.from_pretrained(model_checkpoint)
+        model = XLNetModel.from_pretrained(model_checkpoint, config=configuration)
 
         return model, tokenizer
 
@@ -201,8 +201,8 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import XLMConfig, XLMModel, XLMTokenizer
 
         configuration = XLMConfig()
-        tokenizer = XLMTokenizer.from_pretrained(model_path)
-        model = XLMModel.from_pretrained(model_path, config=configuration)
+        tokenizer = XLMTokenizer.from_pretrained(model_checkpoint)
+        model = XLMModel.from_pretrained(model_checkpoint, config=configuration)
 
         return model, tokenizer
 

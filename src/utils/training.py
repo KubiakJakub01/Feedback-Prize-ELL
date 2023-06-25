@@ -101,10 +101,9 @@ class Trainer:
         # Get batch
         input_ids = batch["input_ids"].to(self.device)
         attention_mask = batch["attention_mask"].to(self.device)
-        token_type_ids = batch["token_type_ids"].to(self.device)
         labels = batch["labels"].to(self.device)
 
-        return input_ids, attention_mask, token_type_ids, labels
+        return input_ids, attention_mask, labels
 
     @torch.no_grad()
     def valid_one_step(self, batch):
@@ -118,13 +117,12 @@ class Trainer:
             float: Validation loss.
         """
         # Get batch
-        input_ids, attention_mask, token_type_ids, labels = self.process_batch(batch)
+        input_ids, attention_mask, labels = self.process_batch(batch)
 
         # Get model outputs
         outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
         )
         logits = outputs[0]
 
@@ -174,14 +172,13 @@ class Trainer:
         self.optimizer.zero_grad()
 
         # Get batch
-        input_ids, attention_mask, token_type_ids, labels = self.process_batch(batch)
+        input_ids, attention_mask, labels = self.process_batch(batch)
 
         # Get model outputs
-        with torch.cuda.amp.autocast(device_type=self.device, dtype=torch.float16):
+        with torch.cuda.amp.autocast():
             outputs = self.model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                token_type_ids=token_type_ids,
             )
             # Calculate loss
             loss = self.loss_fn(logits, labels)
@@ -189,7 +186,7 @@ class Trainer:
         logits = outputs[0]
 
         # Backpropagate loss
-        with torch.cuda.amp.autocast(device_type=self.device, dtype=torch.float16):
+        with torch.cuda.amp.autocast():
             self.scaler.scale(loss).backward()
 
         self.scaler.unscale_(self.optimizer)

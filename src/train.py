@@ -34,7 +34,7 @@ from utils.training import Trainer
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
-    datefmt="%m/%d/%Y %I:%M:%S %p",
+    datefmt="%m/%d/%Y %I:%M:%S",
     handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger(__name__)
@@ -52,10 +52,7 @@ def train(args: Params):
     local_rank = int(os.environ.get("LOCAL_RANK", 0))
 
     # Load model and tokenizer
-    model, tokenizer = get_model_and_tokenizer(
-        model_path=args.model_params.model_checkpoint,
-        model_name=args.model_params.model_name,
-    )
+    model, tokenizer = get_model_and_tokenizer(args.model_params.config)
     model.to(device)
 
     if args.experiment_params.ddp:
@@ -150,12 +147,13 @@ if __name__ == "__main__":
     # Get command line arguments
     if len(sys.argv) == 2:
         args = get_params(sys.argv[1])
+        logger.debug("Arguments: %s", args)
     else:
         message = "Please provide a path to the parameters file."
         logger.error(message)
         raise ValueError(message)
 
-    MODEL_PATH = Path(args.model_params.model_checkpoint)
+    MODEL_PATH = Path(args.model_params.config.model_checkpoint)
     MODEL_NAME = MODEL_PATH.name
     EXPERIMENT_NAME = f"{MODEL_NAME}_{START_TIME}"
 

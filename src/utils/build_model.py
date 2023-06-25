@@ -2,9 +2,12 @@
 Module for building the model
 """
 import logging
+
 import torch
 import torch.nn as nn
-from transformers import AutoModel
+from transformers import BertForSequenceClassification
+
+from .params_parser import ModelConfig
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -32,9 +35,9 @@ class MeanPooling(nn.Module):
         Returns:
             Mean pooled output.
         """
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
-            last_hidden_state.size()
-        ).float()
+        input_mask_expanded = (
+            attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
+        )
         sum_embeddings = torch.sum(last_hidden_state * input_mask_expanded, 1)
         sum_mask = input_mask_expanded.sum(1)
         sum_mask = torch.clamp(sum_mask, min=1e-9)
@@ -68,9 +71,9 @@ class WeightedLayerPooling(nn.Module):
         Returns:
             Weighted layer pooled output.
         """
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
-            last_hidden_state.size()
-        ).float()
+        input_mask_expanded = (
+            attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
+        )
         sum_embeddings = torch.sum(last_hidden_state * input_mask_expanded, 1)
         sum_mask = input_mask_expanded.sum(1)
         sum_mask = torch.clamp(sum_mask, min=1e-9)
@@ -108,14 +111,15 @@ class LSTMPooling(nn.Module):
         Returns:
             LSTM pooled output.
         """
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
-            last_hidden_state.size()
-        ).float()
+        input_mask_expanded = (
+            attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
+        )
         sum_mask = input_mask_expanded.sum(1)
         sum_mask = torch.clamp(sum_mask, min=1e-9)
         _, (hidden, _) = self.lstm(last_hidden_state)
         hidden = torch.cat([hidden[0], hidden[1]], dim=1)
         return hidden
+
 
 class ConcatPooling(nn.Module):
     def __init__(self, hidden_size: int):
@@ -139,31 +143,33 @@ class ConcatPooling(nn.Module):
         Returns:
             Concat pooled output.
         """
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(
-            last_hidden_state.size()
-        ).float()
+        input_mask_expanded = (
+            attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
+        )
         sum_mask = input_mask_expanded.sum(1)
         sum_mask = torch.clamp(sum_mask, min=1e-9)
-        hidden = torch.cat([last_hidden_state[:, 0, :], last_hidden_state[:, -1, :]], dim=1)
+        hidden = torch.cat(
+            [last_hidden_state[:, 0, :], last_hidden_state[:, -1, :]], dim=1
+        )
         return hidden
 
 
 class CustomModel(nn.Module):
     """Class for custom model architecture.
-    
+
     Model architecture:
     1. Pretrained model
     2. Pooling layer
     3. Fully connected linear layer"""
 
-    def __init__(self, cfg) -> None:
+    def __init__(self, cfg: ModelConfig) -> None:
         """Build custom model from config"""
+        logger.info("Building custom model from config: %s", cfg)
         super().__init__()
         self.cfg = cfg
-        self.model = AutoModel.from_pretrained(
-            self.cfg.model_name
+        self.model = BertForSequenceClassification.from_pretrained(
+            self.cfg.model_checkpoint, output_hidden_states=True
         )
-
         if self.cfg.pooling == "mean":
             self.pooling = MeanPooling()
         elif self.cfg.pooling == "weighted":
@@ -177,14 +183,14 @@ class CustomModel(nn.Module):
 
         self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
 
-    def feature(self, inputs):
+    def feature(self, **inputs):
         outputs = self.model(**inputs)
         last_hidden_state = outputs.last_hidden_state
         attention_mask = inputs["attention_mask"]
         return self.pooling(last_hidden_state, attention_mask)
-    
-    def forward(self, inputs):
-        pooled_output = self.feature(inputs)
+
+    def forward(self, **inputs):
+        pooled_output = self.feature(**inputs)
         return self.fc(pooled_output)
 
     def save(self, path):
