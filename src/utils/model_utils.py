@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.optim.lr_scheduler as optim_scheduler
 
+from .params_parser import ModelConfig
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -127,7 +129,7 @@ def get_loss_fn(loss_fn):
     raise ValueError(f"Loss {loss_fn} not supported.")
 
 
-def get_model_and_tokenizer(model_path, model_name):
+def get_model_and_tokenizer(model_cfg: ModelConfig):
     """
     Get model.
 
@@ -138,8 +140,19 @@ def get_model_and_tokenizer(model_path, model_name):
     Returns:
         Model, Tokenizer: Huggingface model and tokenizer.
     """
+    model_name = model_cfg.model_name
+    model_path = model_cfg.model_path
     logger.info("Loading %s from checkpoint %s", model_name, model_path)
-    if model_name == "bert":
+    if model_name == "custom_model":
+        from .model_utils import CustomModel
+        from transformers import AutoTokenizer
+
+        model = CustomModel(model_cfg)
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+        return model, tokenizer
+
+    elif model_name == "bert":
         from transformers import BertConfig, BertModel, BertTokenizer
 
         configuration = BertConfig()

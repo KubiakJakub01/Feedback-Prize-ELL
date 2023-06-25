@@ -4,7 +4,7 @@ Module for building the model
 import logging
 import torch
 import torch.nn as nn
-from transformers import AutoModelForSequenceClassification
+from transformers import AutoModel
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -152,7 +152,7 @@ class CustomModel(nn.Module):
     def __init__(self, cfg) -> None:
         super().__init__()
         self.cfg = cfg
-        self.model = AutoModelForSequenceClassification.from_pretrained(
+        self.model = AutoModel.from_pretrained(
             self.cfg.model_name
         )
 
