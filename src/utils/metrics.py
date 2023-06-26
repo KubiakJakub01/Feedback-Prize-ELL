@@ -145,3 +145,41 @@ class F1(Metric):
         """
         self.correct = 0
         self.total = 0
+
+
+class Precision(Metric):
+    """
+    Precision metric.
+    """
+
+    def __init__(self):
+        """
+        Initialize metric.
+        """
+        self.name = "precision"
+        self.correct = 0
+        self.total = 0
+
+    def update(self, predictions, labels):
+        """
+        Update metric.
+        """
+        # Get predictions
+        predictions = torch.argmax(predictions, dim=1)
+
+        # Update metric
+        self.correct += torch.sum(predictions == labels).item()
+        self.total += labels.shape[0]
+
+    def compute(self):
+        """
+        Compute metric.
+        """
+        return self.correct / self.total
+
+    def reset(self):
+        """
+        Reset metric.
+        """
+        self.correct = 0
+        self.total = 0
