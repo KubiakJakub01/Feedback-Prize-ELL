@@ -129,7 +129,7 @@ class Trainer:
             input_ids=input_ids,
             attention_mask=attention_mask,
         )
-        logits = outputs[0]
+        logits = outputs
 
         # Calculate loss
         loss = self.loss_fn(logits, labels)
