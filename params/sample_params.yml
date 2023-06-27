@@ -19,7 +19,7 @@ model_params:
   save_path: models/
   optimizer_name: adam
   type_of_scheduler: one_cycle
-  loss_fn: bce_with_logits
+  loss_fn: smooth_l1
   
 data_params:
   train_data_path: data/train.csv

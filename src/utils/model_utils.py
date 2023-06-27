@@ -125,7 +125,7 @@ def get_loss_fn(loss_fn):
     elif loss_fn == "l1":
         return nn.L1Loss()
     elif loss_fn == "smooth_l1":
-        return nn.SmoothL1Loss()
+        return nn.SmoothL1Loss(reduction="mean")
     elif loss_fn == "kldiv":
         return nn.KLDivLoss()
     elif loss_fn == "nll":
