@@ -151,7 +151,8 @@ class Trainer:
         total_valid_size = len(self.valid_data_loader)
 
         # Iterate over batches
-        with tqdm(self.valid_data_loader, desc="Validating") as pbar:
+        with tqdm(self.valid_data_loader,
+                  desc=f"Validating after {self.global_step + 1} steps") as pbar:
             for batch in pbar:
                 # Validate model for one step
                 loss += self.valid_one_step(batch)
@@ -161,7 +162,7 @@ class Trainer:
                 pbar.update()
 
         # Calculate average loss
-        loss /= len(self.valid_data_loader)
+        loss /= total_valid_size
 
         self.model.train()
 
@@ -224,10 +225,10 @@ class Trainer:
         with tqdm(self.train_data_loader, desc=f"Training epoch nr {epoch}") as pbar:
             for batch in pbar:
                 # Train model for one step
-                self.train_loss = self.train_one_step(batch)
+                self.train_loss += self.train_one_step(batch)
 
                 # Update progress bar
-                pbar.set_postfix({"loss": self.train_loss})
+                pbar.set_postfix({"loss": self.train_loss / (self.global_step + 1)})
                 pbar.update()
 
                 # Log training loss
