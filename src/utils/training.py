@@ -148,10 +148,13 @@ class Trainer:
 
         # Initialize loss
         loss = 0
+        total_valid_size = len(self.valid_data_loader)
 
         # Iterate over batches
         for batch in tqdm(
-            self.valid_data_loader, desc=f"Validating after {self.global_step} steps"
+            self.valid_data_loader,
+            desc=f"Validating after {self.global_step} steps",
+            total=total_valid_size
         ):
             # Validate model for one step
             loss += self.valid_one_step(batch)
@@ -220,15 +223,15 @@ class Trainer:
         with tqdm(self.train_data_loader, desc=f"Training epoch nr {epoch}") as pbar:
             for batch in pbar:
                 # Train model for one step
-                loss = self.train_one_step(batch)
+                self.train_loss = self.train_one_step(batch)
 
                 # Update progress bar
-                pbar.set_postfix({"loss": loss})
+                pbar.set_postfix({"loss": self.train_loss})
                 pbar.update()
 
                 # Log training loss
                 if self.global_step % self.log_step == 0:
-                    self.writer.add_scalar("loss", loss, self.global_step)
+                    self.writer.add_scalar("loss", self.train_loss, self.global_step)
 
                 # Validate model
                 if self.global_step % self.validation_step == 0:
@@ -246,7 +249,7 @@ class Trainer:
         Save model.
         """
         # Create checkpoint directory
-        checpoint_dir = self.save_path / f"checkpoint_{self.global_step}"
+        checpoint_dir = self.save_path / "checkpoints" / f"step_{self.global_step}"
         checpoint_dir.mkdir(parents=True, exist_ok=True)
         logger.info("Saving checkpoint to {}".format(checpoint_dir))
 
