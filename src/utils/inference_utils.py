@@ -20,8 +20,10 @@ def get_grade_from_predictions(predictions: np.ndarray) -> np.ndarray:
     """Get nearest grade from predictions
     
     Args:
-        predictions (np.ndarray): The predictions from the model.
+        predictions: The predictions from the model.
         
     Returns:
         np.ndarray: The nearest grade from the predictions."""
-    return np.array([get_grade_from_prediction(prediction) for prediction in predictions])
+    return np.array(
+        [get_grade_from_prediction(prediction) for prediction in predictions]
+    )
