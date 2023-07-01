@@ -183,3 +183,38 @@ class Precision(Metric):
         """
         self.correct = 0
         self.total = 0
+
+
+class MSEVectorized(Metric):
+    """
+    MSE metric.
+    """
+
+    def __init__(self):
+        """
+        Initialize metric.
+        """
+        self.name = "mse"
+        self.correct = 0
+        self.total = 0
+
+    def update(self, predictions, labels):
+        """
+        Update metric.
+        """
+        # Update metric
+        self.correct += torch.sum((predictions - labels) ** 2).item()
+        self.total += labels.shape[0]
+
+    def compute(self):
+        """
+        Compute metric.
+        """
+        return self.correct / self.total
+
+    def reset(self):
+        """
+        Reset metric.
+        """
+        self.correct = 0
+        self.total = 0
