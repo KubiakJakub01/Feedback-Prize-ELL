@@ -13,6 +13,9 @@ from abc import ABC, abstractmethod
 import torch
 import evaluate
 
+# Import custom modules
+from src.utils.inference_utils import get_grade_from_predictions
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -203,6 +206,7 @@ class MSEVectorized(Metric):
         Update metric.
         """
         # Update metric
+        predictions = get_grade_from_predictions(predictions)
         self.correct += torch.sum((predictions - labels) ** 2).item()
         self.total += labels.shape[0]
 
