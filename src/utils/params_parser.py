@@ -68,11 +68,16 @@ class ExperimentParams:
 class ModelConfig:
     model_checkpoint: str = field(
         metadata={
-            "help": "The name or path of the pre-trained model checkpoint to use."
-        }
+            "help": "The name or path of the pre-trained model checkpoint to use." \
+                    "Defaults to bert-base-uncased."
+        },
+        default="bert-base-uncased",
     )
     model_name: str = field(
-        metadata={"help": "The name of the model architecture being used."}
+        metadata={
+            "help": "The name of the model architecture being used." \
+                    "Defaults to bert."},
+        default="bert",
     )
     pooling: Literal["mean", "weighted", "lstm", "concat"] = field(
         metadata={
@@ -231,6 +236,23 @@ class Hyperparameters:
         Post initialization.
         """
         self.learning_rate = float(self.learning_rate)
+
+
+@dataclass
+class EvaluationParams:
+    batch_size: int = field(metadata={"help": "The batch size to use for evaluation."})
+    num_workers: int = field(
+        metadata={
+            "help": "The number of workers to use for data loading. Defaults to 1."
+        },
+        default=1,
+    )
+    wandb: bool = field(
+        metadata={
+            "help": "Whether to log the evaluation metrics to wandb. Defaults to False."
+        },
+        default=False,
+    )
 
 
 @dataclass
