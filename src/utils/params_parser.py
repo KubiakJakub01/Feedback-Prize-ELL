@@ -240,12 +240,33 @@ class Hyperparameters:
 
 @dataclass
 class EvaluationParams:
+    data_path: str = field(
+        metadata={"help": "The path to the CSV file containing the evaluation data."}
+    )
+    text_col: str = field(
+        metadata={
+            "help": "The name of the column in the CSV file containing the input text data."
+        },
+        default="full_text",
+    )
+    label_cols: List[str] = field(
+        metadata={
+            "help": "A list of names of columns in the CSV file containing the labels for each input text."
+        },
+        default=["cohesion", "syntax", "vocabulary", "phraseology", "grammar", "conventions"]
+    )
     batch_size: int = field(metadata={"help": "The batch size to use for evaluation."})
     num_workers: int = field(
         metadata={
             "help": "The number of workers to use for data loading. Defaults to 1."
         },
         default=1,
+    )
+    metrics: List[str] = field(
+        metadata={
+            "help": "A list of metrics to use for evaluation. Defaults to ['mcrmse']"
+        },
+        default=["mcrmse"],
     )
     wandb: bool = field(
         metadata={
