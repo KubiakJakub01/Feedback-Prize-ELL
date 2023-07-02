@@ -259,6 +259,12 @@ class EvaluationParams:
         },
         default="predictions.csv",
     )
+    metrics_path: str = field(
+        metadata={
+            "help": "The path to save the evaluation metrics. Defaults to metrics.json"
+        },
+        default="metrics.json",
+    )
 
 
 @dataclass
