@@ -188,16 +188,14 @@ class Precision(Metric):
         self.total = 0
 
 
-class MSEVectorized(Metric):
-    """
-    MSE metric.
-    """
+class MCRMSE(Metric):
+    """MCRMSE metric."""
 
     def __init__(self):
         """
         Initialize metric.
         """
-        self.name = "mse"
+        self.name = "mcrmse"
         self.correct = 0
         self.total = 0
 
@@ -207,7 +205,8 @@ class MSEVectorized(Metric):
         """
         # Update metric
         predictions = get_grade_from_predictions(predictions)
-        self.correct += torch.sum((predictions - labels) ** 2).item()
+        self.correct += labels.shape[1] * torch.sum((predictions - labels) ** 2).item()
+        self.correct = torch.sqrt(self.correct)
         self.total += labels.shape[0]
 
     def compute(self):
