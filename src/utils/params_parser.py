@@ -253,6 +253,12 @@ class EvaluationParams:
         },
         default=False,
     )
+    predictions_path: str = field(
+        metadata={
+            "help": "The path to save the predictions. Defaults to predictions.csv"
+        },
+        default="predictions.csv",
+    )
 
 
 @dataclass
