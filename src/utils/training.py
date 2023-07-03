@@ -85,8 +85,9 @@ class Trainer:
         # Create torch GrandScaler
         self.scaler = torch.cuda.amp.GradScaler()
 
-        # Initialize global step
+        # Initialize training variables
         self.global_step = 0
+        self.train_loss = 0
 
     def process_batch(self, batch):
         """
@@ -125,10 +126,7 @@ class Trainer:
         input_ids, attention_mask, labels = self.process_batch(batch)
 
         # Get model outputs
-        outputs = self.model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-        )
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
         logits = outputs
 
         # Calculate loss
@@ -151,8 +149,10 @@ class Trainer:
         total_valid_size = len(self.valid_data_loader)
 
         # Iterate over batches
-        with tqdm(self.valid_data_loader,
-                  desc=f"Validating after {self.global_step + 1} steps") as pbar:
+        with tqdm(
+            self.valid_data_loader,
+            desc=f"Validating after {self.global_step + 1} steps",
+        ) as pbar:
             for batch in pbar:
                 # Validate model for one step
                 loss += self.valid_one_step(batch)
@@ -186,10 +186,7 @@ class Trainer:
 
         # Get model outputs
         with torch.cuda.amp.autocast():
-            outputs = self.model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-            )
+            outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
             # Calculate loss
             logger.debug(f"labels: {labels} (shape: {labels.shape})")
             logger.debug(f"outputs: {outputs} (shape: {outputs.shape})")
