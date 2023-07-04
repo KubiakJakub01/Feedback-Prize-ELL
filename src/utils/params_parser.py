@@ -68,15 +68,15 @@ class ExperimentParams:
 class ModelConfig:
     model_checkpoint: str = field(
         metadata={
-            "help": "The name or path of the pre-trained model checkpoint to use." \
-                    "Defaults to bert-base-uncased."
+            "help": "The name or path of the pre-trained model checkpoint to use."
+            "Defaults to bert-base-uncased."
         },
         default="bert-base-uncased",
     )
     model_name: str = field(
         metadata={
-            "help": "The name of the model architecture being used." \
-                    "Defaults to bert."},
+            "help": "The name of the model architecture being used." "Defaults to bert."
+        },
         default="bert",
     )
     pooling: Literal["mean", "weighted", "lstm", "concat"] = field(
@@ -253,7 +253,14 @@ class EvaluationParams:
         metadata={
             "help": "A list of names of columns in the CSV file containing the labels for each input text."
         },
-        default=["cohesion", "syntax", "vocabulary", "phraseology", "grammar", "conventions"]
+        default=[
+            "cohesion",
+            "syntax",
+            "vocabulary",
+            "phraseology",
+            "grammar",
+            "conventions",
+        ],
     )
     batch_size: int = field(metadata={"help": "The batch size to use for evaluation."})
     num_workers: int = field(
@@ -304,54 +311,61 @@ class Params:
     )
 
 
-def get_params(yaml_file_path):
-    """
-    Get parameters from a YAML file.
-    Args:
-        yaml_file_path (str): The path to the YAML file containing the parameters.
+def load_params(params_dict: dict) -> Params:
+    """Load parameters from a dictionary.
 
+    Args:
+        params_dict (dict): The dictionary containing the parameters.
+    
     Returns:
-        Params: The parameters from the YAML file.
+        Params: The parameters from the dictionary.
+    """
+    return Params(
+        experiment_params=ExperimentParams(**params_dict["experiment_params"]),
+        model_params=ModelParams(**params_dict["model_params"]),
+        data_params=DataParams(**params_dict["data_params"]),
+        hyperparameters=Hyperparameters(**params_dict["hyperparameters"]),
+        evaluation_params=EvaluationParams(**params_dict["evaluation_params"]),
+    )
+
+
+def get_params(file_path):
+    """
+    Get parameters from a yaml or json file.
+
+    Args:
+        file_path (str): Path to yaml or json file containing parameters.
+    
+    Returns:
+        Params: The parameters from the file.
     """
     # Check if file is url or local path
-    if yaml_file_path.startswith("http"):
+    if file_path.startswith("http"):
         import requests
         import tempfile
 
         # Download file
         with tempfile.NamedTemporaryFile(delete=False) as f:
-            response = requests.get(yaml_file_path)
+            response = requests.get(file_path)
             f.write(response.content)
         # Get file path
-        yaml_file_path = f.name
+        file_path = f.name
 
     # Check if file exists
-    if not os.path.exists(yaml_file_path):
-        raise FileNotFoundError(f"File not found at {yaml_file_path}")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found at {file_path}")
 
-    if yaml_file_path.endswith(".yaml") or yaml_file_path.endswith(".yml"):
+    if file_path.endswith(".yaml") or file_path.endswith(".yml"):
         # Load parameters from yaml file
-        with open(yaml_file_path) as f:
+        with open(file_path) as f:
             params_dict = yaml.safe_load(f)
-            params = Params(
-                experiment_params=ExperimentParams(**params_dict["experiment_params"]),
-                model_params=ModelParams(**params_dict["model_params"]),
-                data_params=DataParams(**params_dict["data_params"]),
-                hyperparameters=Hyperparameters(**params_dict["hyperparameters"]),
-            )
-    elif yaml_file_path.endswith(".json"):
+    elif file_path.endswith(".json"):
         # Load parameters from json file
-        with open(yaml_file_path) as f:
+        with open(file_path) as f:
             params_dict = json.load(f)
-            params = Params(
-                experiment_params=ExperimentParams(**params_dict["experiment_params"]),
-                model_params=ModelParams(**params_dict["model_params"]),
-                data_params=DataParams(**params_dict["data_params"]),
-                hyperparameters=Hyperparameters(**params_dict["hyperparameters"]),
-            )
     else:
         raise ValueError(
             "Invalid file type. File must be either YAML (.yaml or .yml) or JSON (.json)"
         )
 
-    return params
+    return load_params(params_dict)
