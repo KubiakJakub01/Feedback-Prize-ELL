@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 
 from utils.data import create_data_loader
-from utils.model_utils import get_model_and_tokenizer
+from utils.model_utils import get_model_and_tokenizer, get_device
 from utils.inference_utils import Inference
 from utils.params_parser import EvaluationParams, ModelConfig
 
@@ -25,10 +25,20 @@ def main(evaluation_params: EvaluationParams, model_config: ModelConfig) -> None
     Args:
         evaluation_params: Evaluation parameters.
     """
+    # Get device
+    device = get_device(default_device=evaluation_params.device, ddp=False)
+
+    # Get model and tokenizer
+    model, tokenizer = get_model_and_tokenizer(
+        model_name=model_config.model_name,
+        model_path=model_config.model_path,
+        device=device,
+    )
+
     # Create data loader
     test_loader = create_data_loader(
         data_path=evaluation_params.data_path,
-        tokenizer=model_config.tokenizer,
+        tokenizer=tokenizer,
         text_col=model_config.text_col,
         numberic_col_list=model_config.numberic_col_list,
         max_length=model_config.max_length,
@@ -40,9 +50,17 @@ def main(evaluation_params: EvaluationParams, model_config: ModelConfig) -> None
         padding=model_config.padding,
     )
 
-    
+    # Initialize inference
+    inference = Inference(model=model, tokenizer=tokenizer, device=device)
 
-    
+    # Evaluate model
+    inference.evaluate(
+        test_loader=test_loader,
+        evaluation_params=evaluation_params,
+        metrics=model_config.metrics,
+    )
+
+    logger.info("Evaluation complete.")
 
 
 if __name__ == "__main__":
