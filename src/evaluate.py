@@ -25,7 +25,20 @@ def main(evaluation_params: EvaluationParams, model_config: ModelConfig) -> None
     Args:
         evaluation_params: Evaluation parameters.
     """
-    pass
+    # Create data loader
+    test_loader = create_data_loader(
+        data_path=evaluation_params.data_path,
+        tokenizer=model_config.tokenizer,
+        text_col=model_config.text_col,
+        numberic_col_list=model_config.numberic_col_list,
+        max_length=model_config.max_length,
+        batch_size=evaluation_params.batch_size,
+        num_workers=evaluation_params.num_workers,
+        shuffle=False,
+        pin_memory=evaluation_params.pin_memory,
+        drop_last=False,
+        padding=model_config.padding,
+    )
 
     
 
