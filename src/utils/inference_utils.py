@@ -13,9 +13,9 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 
-from utils.params_parser import ModelConfig
-from utils.model_utils import get_model_and_tokenizer
 from utils.metrics import save_metrics, Metric
+from utils.model_utils import get_model_and_tokenizer
+from utils.params_parser import EvaluationParams
 
 GRADES = list(range(1, 5, 0.5))
 
@@ -23,7 +23,7 @@ GRADES = list(range(1, 5, 0.5))
 class Inference:
     """Inference class."""
 
-    def __init__(self, model_config: ModelConfig, model_path: str, device: str):
+    def __init__(self, model: object, tokenizer: object, device: str):
         """
         Initialize inference class.
 
@@ -33,10 +33,9 @@ class Inference:
             device (str): Device to use for inference.
         """
         self.set_logger()
-        self.model, self.tokenizer = get_model_and_tokenizer(model_config)
-        self.model.load(model_path)
-        self.model.to(device)
-        self.model.eval()
+        self.model = model.to(device)
+        self.tokenizer = tokenizer
+        self.device = device
 
     def __call__(self, text: str) -> float:
         """
@@ -58,9 +57,10 @@ class Inference:
         )
 
         # Get model outputs
-        outputs = self.model(
-            input_ids=inputs["input_ids"], attention_mask=inputs["attention_mask"]
-        )
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=inputs["input_ids"], attention_mask=inputs["attention_mask"]
+            )
         logits = outputs
 
         # Get prediction
@@ -177,7 +177,7 @@ class Inference:
         return predictions
 
     def evaluate(
-        self, test_loader: DataLoader, evaluation_params, metrics: dict[Metric]
+        self, test_loader: DataLoader, evaluation_params: EvaluationParams, metrics: list[Metric]
     ):
         """
         Evaluate a model.
@@ -196,8 +196,12 @@ class Inference:
             wandb.log({"predictions": wandb.Histogram(predictions)})
 
         # Save predictions
-        if evaluation_params.save_predictions:
+        if evaluation_params.predictions_path:
             self.save_predictions(predictions, evaluation_params.predictions_path)
+        else:
+            self.logger.info("No predictions path provided. Printing predictions:")
+            for prediction in predictions:
+                self.logger.info(prediction)
 
         # Calculate metrics
         metric_dict = {}
@@ -211,5 +215,5 @@ class Inference:
             wandb.log(metric_dict)
 
         # Save metrics
-        if evaluation_params.save_metrics:
+        if evaluation_params.metrics_path:
             save_metrics(metric_dict, evaluation_params.metrics_path)
