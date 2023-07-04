@@ -3,11 +3,12 @@ import os
 import sys
 import logging
 from pathlib import Path
+from datetime import datetime
 
 from utils.data import create_data_loader
 from utils.model_utils import get_model_and_tokenizer, get_device
 from utils.inference_utils import Inference
-from utils.params_parser import EvaluationParams, ModelConfig
+from utils.params_parser import EvaluationParams, ModelConfig, get_params
 
 
 logging.basicConfig(
@@ -64,4 +65,21 @@ def main(evaluation_params: EvaluationParams, model_config: ModelConfig) -> None
 
 
 if __name__ == "__main__":
-    pass
+    # Get start time
+    start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    logger.info("Evaluation started at %s", start_time)
+
+    # Get command line arguments
+    if len(sys.argv) == 2:
+        args = get_params(sys.argv[1])
+        logger.debug("Arguments: %s", args)
+    else:
+        message = "Please provide a path to the parameters file."
+        logger.error(message)
+        raise ValueError(message)
+    
+    # Run evaluation
+    main(
+        evaluation_params=args.evaluation_params,
+        model_config=args.model_params,
+    )
