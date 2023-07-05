@@ -13,8 +13,7 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 
-from utils.metrics import save_metrics, Metric
-from utils.model_utils import get_model_and_tokenizer
+from utils.metrics import Metric
 from utils.params_parser import EvaluationParams
 
 GRADES = list(range(1, 5, 0.5))
@@ -74,16 +73,16 @@ class Inference:
     @staticmethod
     def get_grade_from_prediction(prediction: float) -> float:
         """Get nearest grade from prediction
-        
+
         Args:
             prediction: The prediction from the model.
-            
+
         Returns:
             float: The nearest grade from the prediction."""
         return GRADES[np.argmin(np.abs(GRADES - prediction))]
 
     @staticmethod
-    def save_predictions(predictions: list[float], predictions_path: str) -> None:
+    def save_predictions(predictions: list[float], evaluation_dir: Path) -> None:
         """
         Save predictions to a file.
 
@@ -91,19 +90,13 @@ class Inference:
             predictions: List of predictions.
             predictions_path: Path to save predictions.
         """
-        Path(predictions_path).mkdir(parents=True, exist_ok=True)
-        with open(
-            os.path.join(
-                predictions_path,
-                f"predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-            ),
-            "w",
-        ) as f:
+        predictions_path = evaluation_dir / "predictions.txt"
+        with open(str(predictions_path), "w") as f:
             for prediction in predictions:
-                f.write(prediction)
+                f.write(f"{prediction}\n")
 
     @staticmethod
-    def save_metrics(metrics: dict, metrics_path: str) -> None:
+    def save_metrics(metrics: dict, evaluation_dir: Path) -> None:
         """
         Save metrics to a file.
 
@@ -111,22 +104,17 @@ class Inference:
             metrics: Dictionary of metrics.
             metrics_path: Path to save metrics.
         """
-        Path(metrics_path).mkdir(parents=True, exist_ok=True)
-        with open(
-            os.path.join(
-                metrics_path, f"metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            ),
-            "w",
-        ) as f:
+        metrics_path = evaluation_dir / "metrics.txt"
+        with open(str(metrics_path), "w") as f:
             for metric, value in metrics.items():
-                f.write(f"{metric}: {value}")
+                f.write(f"{metric}: {value}\n")
 
     def get_grade_from_predictions(self, predictions: np.ndarray) -> np.ndarray:
         """Get nearest grade from predictions
-        
+
         Args:
             predictions: The predictions from the model.
-            
+
         Returns:
             np.ndarray: The nearest grade from the predictions."""
         return np.array(
@@ -176,9 +164,7 @@ class Inference:
 
         return predictions
 
-    def evaluate(
-        self, test_loader: DataLoader, evaluation_params: EvaluationParams, metrics: list[Metric]
-    ):
+    def evaluate(self, test_loader: DataLoader, evaluation_params: EvaluationParams):
         """
         Evaluate a model.
 
@@ -188,6 +174,9 @@ class Inference:
             device: Device to use.
             params: Experiment parameters.
         """
+        # Get metrics
+        metrics = [Metric(metric) for metric in evaluation_params.metrics]
+
         # Get predictions
         predictions = self.get_predictions(test_loader)
 
@@ -196,8 +185,9 @@ class Inference:
             wandb.log({"predictions": wandb.Histogram(predictions)})
 
         # Save predictions
-        if evaluation_params.predictions_path:
-            self.save_predictions(predictions, evaluation_params.predictions_path)
+        if evaluation_params.evaluation_dir:
+            evaluation_params.evaluation_dir.mkdir(parents=True, exist_ok=True)
+            self.save_predictions(predictions, evaluation_params.evaluation_dir)
         else:
             self.logger.info("No predictions path provided. Printing predictions:")
             for prediction in predictions:
@@ -215,5 +205,5 @@ class Inference:
             wandb.log(metric_dict)
 
         # Save metrics
-        if evaluation_params.metrics_path:
-            save_metrics(metric_dict, evaluation_params.metrics_path)
+        if evaluation_params.evaluation_dir:
+            self.save_metrics(metric_dict, evaluation_params.evaluation_dir)

@@ -14,7 +14,7 @@ from .params_parser import ModelConfig
 logger = logging.getLogger(__name__)
 
 
-def get_device(default_device: str, ddp: bool = False):
+def get_device(default_device: str = None, ddp: bool = False):
     """
     Get device.
 
@@ -24,7 +24,7 @@ def get_device(default_device: str, ddp: bool = False):
     Returns:
         Device: PyTorch device.
     """
-    if default_device == "cuda":
+    if default_device == "cuda" or default_device is None:
         if not torch.cuda.is_available():
             logger.warning("Cuda is not available. Using cpu instead.")
             device = "cpu"
@@ -157,7 +157,7 @@ def get_model_and_tokenizer(model_cfg: ModelConfig):
         from transformers import AutoTokenizer
 
         model = CustomModel(model_cfg)
-        tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+        tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, use_fast=True)
 
         return model, tokenizer
 

@@ -158,7 +158,7 @@ if __name__ == "__main__":
     init_seed(42)
 
     # Get start time of training with format yyyy-mm-dd hh:mm:ss
-    START_TIME = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    START_TIME = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     logger.info("Starting training at {}".format(START_TIME))
 
     # Get command line arguments
