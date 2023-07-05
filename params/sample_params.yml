@@ -20,7 +20,7 @@ model_params:
   optimizer_name: adam
   type_of_scheduler: one_cycle
   loss_fn: smooth_l1
-  
+
 data_params:
   train_data_path: data/train.csv
   valid_data_path: data/valid.csv
@@ -45,3 +45,11 @@ hyperparameters:
   num_workers: 1
   truncate: true
   fp16_backend: "auto"
+
+evaluation_params:
+  data_path: data/test.csv
+  evaluation_dir: evaluation
+  batch_size: 2
+  num_workers: 1
+
+

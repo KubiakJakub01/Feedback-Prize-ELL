@@ -4,6 +4,7 @@ Module for parsing parameters from yaml files.
 import os
 import yaml
 import json
+from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Optional, Literal
 
@@ -262,7 +263,10 @@ class EvaluationParams:
             "conventions",
         ],
     )
-    batch_size: int = field(metadata={"help": "The batch size to use for evaluation."})
+    batch_size: int = field(
+        metadata={"help": "The batch size to use for evaluation. Defaults to 8"},
+        default=8
+    )
     num_workers: int = field(
         metadata={
             "help": "The number of workers to use for data loading. Defaults to 1."
@@ -281,17 +285,11 @@ class EvaluationParams:
         },
         default=False,
     )
-    predictions_path: str = field(
+    evaluation_dir: Path = field(
         metadata={
-            "help": "The path to save the predictions. Defaults to predictions.csv"
+            "help": "The directory to save the evaluation metrics to. Defaults to 'evaluation'."
         },
-        default="predictions.csv",
-    )
-    metrics_path: str = field(
-        metadata={
-            "help": "The path to save the evaluation metrics. Defaults to metrics.json"
-        },
-        default="metrics.json",
+        default="evaluation",
     )
 
 
