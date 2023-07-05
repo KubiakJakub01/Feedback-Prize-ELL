@@ -8,7 +8,7 @@ from datetime import datetime
 from utils.data import create_data_loader
 from utils.model_utils import get_model_and_tokenizer, get_device
 from utils.inference_utils import Inference
-from utils.params_parser import EvaluationParams, ModelConfig, get_params
+from utils.params_parser import EvaluationParams, ModelConfig, Params, get_params
 
 
 logging.basicConfig(
@@ -20,35 +20,31 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def main(evaluation_params: EvaluationParams, model_config: ModelConfig) -> None:
+def main(args: Params) -> None:
     """Evaluate a model.
 
     Args:
         evaluation_params: Evaluation parameters.
     """
     # Get device
-    device = get_device(default_device=evaluation_params.device, ddp=False)
+    device = get_device()
 
     # Get model and tokenizer
-    model, tokenizer = get_model_and_tokenizer(
-        model_name=model_config.model_name,
-        model_path=model_config.model_path,
-        device=device,
-    )
+    model, tokenizer = get_model_and_tokenizer(args.model_params.config)
 
     # Create data loader
     test_loader = create_data_loader(
-        data_path=evaluation_params.data_path,
+        data_path=args.evaluation_params.data_path,
         tokenizer=tokenizer,
-        text_col=model_config.text_col,
-        numberic_col_list=model_config.numberic_col_list,
-        max_length=model_config.max_length,
-        batch_size=evaluation_params.batch_size,
-        num_workers=evaluation_params.num_workers,
+        text_col=args.data_params.text_col,
+        numberic_col_list=args.data_params.label_cols,
+        max_length=args.hyperparameters.max_length,
+        batch_size=args.evaluation_params.batch_size,
+        num_workers=args.evaluation_params.num_workers,
         shuffle=False,
-        pin_memory=evaluation_params.pin_memory,
+        pin_memory=True,
         drop_last=False,
-        padding=model_config.padding,
+        padding=args.hyperparameters.padding,
     )
 
     # Initialize inference
@@ -57,8 +53,7 @@ def main(evaluation_params: EvaluationParams, model_config: ModelConfig) -> None
     # Evaluate model
     inference.evaluate(
         test_loader=test_loader,
-        evaluation_params=evaluation_params,
-        metrics=model_config.metrics,
+        evaluation_params=args.evaluation_params,
     )
 
     logger.info("Evaluation complete.")
@@ -77,9 +72,6 @@ if __name__ == "__main__":
         message = "Please provide a path to the parameters file."
         logger.error(message)
         raise ValueError(message)
-    
+
     # Run evaluation
-    main(
-        evaluation_params=args.evaluation_params,
-        model_config=args.model_params,
-    )
+    main(args)
