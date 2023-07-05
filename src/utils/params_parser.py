@@ -277,7 +277,7 @@ class EvaluationParams:
         metadata={
             "help": "A list of metrics to use for evaluation. Defaults to ['mcrmse']"
         },
-        default=["mcrmse"],
+        default_factory=lambda: ["mcrmse"],
     )
     wandb: bool = field(
         metadata={
