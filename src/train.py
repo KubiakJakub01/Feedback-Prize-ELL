@@ -140,7 +140,7 @@ def train(args: Params):
         device=device,
         save_path=SAVE_PATH,
         num_epochs=args.hyperparameters.epochs,
-        valid_step=args.experiment_params.valid_step,
+        validation_step=args.experiment_params.valid_step,
         num_warmup_steps=args.hyperparameters.num_warmup_steps,
         log_step=args.experiment_params.log_step,
         metrics=metrics,
