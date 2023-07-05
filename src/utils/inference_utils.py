@@ -14,10 +14,8 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 
-from .metrics import Metric
+from .metrics import Metric, get_grade_from_prediction
 from .params_parser import EvaluationParams
-
-GRADES = list(range(1, 5, 0.5))
 
 
 class Inference:
@@ -67,20 +65,9 @@ class Inference:
         prediction = logits.item()
 
         # Get grade from prediction
-        grade = self.get_grade_from_prediction(prediction)
+        grade = get_grade_from_prediction(prediction)
 
         return grade
-
-    @staticmethod
-    def get_grade_from_prediction(prediction: float) -> float:
-        """Get nearest grade from prediction
-
-        Args:
-            prediction: The prediction from the model.
-
-        Returns:
-            float: The nearest grade from the prediction."""
-        return GRADES[np.argmin(np.abs(GRADES - prediction))]
 
     @staticmethod
     def save_predictions(predictions: list[float], evaluation_dir: Path) -> None:

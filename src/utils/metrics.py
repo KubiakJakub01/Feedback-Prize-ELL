@@ -15,6 +15,9 @@ import numpy as np
 # Set up logging
 logger = logging.getLogger(__name__)
 
+GRADES = list(range(1, 5, 0.5))
+
+
 def load_metrics(metrics: list[str]):
     """
     Load metrics.
@@ -27,15 +30,26 @@ def load_metrics(metrics: list[str]):
 
     return metrics_list
 
+def get_grade_from_prediction(prediction: float) -> float:
+    """Get nearest grade from prediction
+    Args:
+        prediction: The prediction from the model.
+    Returns:
+        float: The nearest grade from the prediction."""
 
-def get_grade_from_predictions(self, predictions: np.ndarray) -> np.ndarray:
+    return GRADES[np.argmin(np.abs(GRADES - prediction))]
+
+
+def get_grade_from_predictions(predictions: np.ndarray) -> np.ndarray:
     """Get nearest grade from predictions
+
     Args:
         predictions: The predictions from the model.
+
     Returns:
         np.ndarray: The nearest grade from the predictions."""
     return np.array(
-        [self.get_grade_from_prediction(prediction) for prediction in predictions]
+        [get_grade_from_prediction(prediction) for prediction in predictions]
     )
 
 
