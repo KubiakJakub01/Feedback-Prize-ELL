@@ -309,6 +309,9 @@ class Params:
     hyperparameters: Hyperparameters = field(
         metadata={"help": "The configuration for the training process."}
     )
+    evaluation_params: EvaluationParams = field(
+        metadata={"help": "The configuration for the evaluation process."}
+    )
 
 
 def load_params(params_dict: dict) -> Params:
@@ -329,7 +332,7 @@ def load_params(params_dict: dict) -> Params:
     )
 
 
-def get_params(file_path):
+def get_params(file_path) -> Params:
     """
     Get parameters from a yaml or json file.
 
