@@ -14,8 +14,8 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
 
-from utils.metrics import Metric
-from utils.params_parser import EvaluationParams
+from .metrics import Metric
+from .params_parser import EvaluationParams
 
 GRADES = list(range(1, 5, 0.5))
 
@@ -109,18 +109,6 @@ class Inference:
         with open(str(metrics_path), "w") as f:
             for metric, value in metrics.items():
                 f.write(f"{metric}: {value}\n")
-
-    def get_grade_from_predictions(self, predictions: np.ndarray) -> np.ndarray:
-        """Get nearest grade from predictions
-
-        Args:
-            predictions: The predictions from the model.
-
-        Returns:
-            np.ndarray: The nearest grade from the predictions."""
-        return np.array(
-            [self.get_grade_from_prediction(prediction) for prediction in predictions]
-        )
 
     def set_logger(self) -> None:
         """Set logger."""

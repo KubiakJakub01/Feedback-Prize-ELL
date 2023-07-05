@@ -31,6 +31,7 @@ from utils.model_utils import (
     get_device,
 )
 from utils.training import Trainer
+from utils.metrics import load_metrics
 
 # Set up logging
 logging.basicConfig(
@@ -125,22 +126,26 @@ def train(args: Params):
         epochs=args.hyperparameters.epochs,
     )
 
+    # Define metrics
+    metrics = load_metrics(args.model_params.metrics)
+
     # Define trainer
     trainer = Trainer(
-        model,
-        optimizer,
-        scheduler,
-        loss_fn,
-        train_data_loader,
-        valid_data_loader,
-        device,
-        SAVE_PATH,
-        args.hyperparameters.epochs,
-        args.experiment_params.valid_step,
-        args.hyperparameters.num_warmup_steps,
-        args.experiment_params.log_step,
-        args.experiment_params.save_step,
-        args.hyperparameters.max_grad_norm,
+        model=model,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        loss_fn=loss_fn,
+        train_data_loader=train_data_loader,
+        valid_data_loader=valid_data_loader,
+        device=device,
+        save_path=SAVE_PATH,
+        num_epochs=args.hyperparameters.epochs,
+        valid_step=args.experiment_params.valid_step,
+        num_warmup_steps=args.hyperparameters.num_warmup_steps,
+        log_step=args.experiment_params.log_step,
+        metrics=metrics,
+        save_step=args.experiment_params.save_step,
+        max_grad_norm=args.hyperparameters.max_grad_norm,
     )
 
     # Train model

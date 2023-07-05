@@ -2,25 +2,20 @@
 Module with metrics for evaluating models.
 """
 # Import standard library
-import os
-import sys
 import logging
-from pathlib import Path
-from dataclasses import dataclass
-from abc import ABC, abstractmethod
 from typing import Any
+from abc import ABC, abstractmethod
 
 # Import torch and huggingface modules
 import torch
 
-# Import custom modules
-from src.utils.inference_utils import get_grade_from_predictions
+# Import numpy
+import numpy as np
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-
-def load_metrics(metrics):
+def load_metrics(metrics: list[str]):
     """
     Load metrics.
     """
@@ -31,6 +26,17 @@ def load_metrics(metrics):
             metrics_list.append(MCRMSE())
 
     return metrics_list
+
+
+def get_grade_from_predictions(self, predictions: np.ndarray) -> np.ndarray:
+    """Get nearest grade from predictions
+    Args:
+        predictions: The predictions from the model.
+    Returns:
+        np.ndarray: The nearest grade from the predictions."""
+    return np.array(
+        [self.get_grade_from_prediction(prediction) for prediction in predictions]
+    )
 
 
 class Metric(ABC):

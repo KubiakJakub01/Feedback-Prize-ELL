@@ -139,6 +139,12 @@ class ModelParams:
         },
         default="cross_entropy",
     )
+    metrics: List[str] = field(
+        metadata={
+            "help": "A list of metrics to use for evaluation. Defaults to ['mcrmse']"
+        },
+        default_factory=lambda: ["mcrmse"],
+    )
 
     def __post_init__(self):
         """
