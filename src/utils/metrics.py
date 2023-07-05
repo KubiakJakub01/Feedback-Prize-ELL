@@ -15,7 +15,7 @@ import numpy as np
 # Set up logging
 logger = logging.getLogger(__name__)
 
-GRADES = list(range(1, 5, 0.5))
+GRADES = np.arange(0.0, 5.0, 0.5)
 
 
 def load_metrics(metrics: list[str]):
