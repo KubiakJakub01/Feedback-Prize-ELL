@@ -254,7 +254,7 @@ class EvaluationParams:
         metadata={
             "help": "A list of names of columns in the CSV file containing the labels for each input text."
         },
-        default=[
+        default_factory=lambda: [
             "cohesion",
             "syntax",
             "vocabulary",
