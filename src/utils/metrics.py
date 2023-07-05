@@ -41,6 +41,18 @@ class Metric(ABC):
     @abstractmethod
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return super().__call__(*args, **kwds)
+    
+    @abstractmethod
+    def update(self, *args: Any, **kwds: Any) -> Any:
+        return super().__call__(*args, **kwds)
+    
+    @abstractmethod
+    def compute(self, *args: Any, **kwds: Any) -> Any:
+        return super().__call__(*args, **kwds)
+    
+    @abstractmethod
+    def reset(self, *args: Any, **kwds: Any) -> Any:
+        return super().__call__(*args, **kwds)
 
 
 class MCRMSE(Metric):
@@ -51,6 +63,8 @@ class MCRMSE(Metric):
         Initialize metric.
         """
         self.name = "mcrmse"
+        self.correct = 0
+        self.total = 0
 
     def __call__(self, predictions, labels):
         """
@@ -59,3 +73,27 @@ class MCRMSE(Metric):
         # Compute metric
         predictions = get_grade_from_predictions(predictions)
         return torch.sqrt(torch.mean((predictions - labels) ** 2))
+    
+    def update(self, predictions, labels):
+        """
+        Update metric.
+        """
+        # Compute metric
+        predictions = get_grade_from_predictions(predictions)
+        self.correct += torch.sum((predictions == labels).float())
+        self.total += len(labels)
+
+    def compute(self):
+        """
+        Compute metric.
+        """
+        return self.correct / self.total
+    
+    def reset(self):
+        """
+        Reset metric.
+        """
+        self.correct = 0
+        self.total = 0
+
+        

@@ -154,13 +154,10 @@ class Inference:
             # Get inputs
             inputs = batch["inputs"].to(self.device)
             attention_mask = batch["attention_mask"].to(self.device)
-            token_type_ids = batch["token_type_ids"].to(self.device)
 
             # Get predictions
             with torch.no_grad():
-                outputs = self.model(
-                    inputs, attention_mask=attention_mask, token_type_ids=token_type_ids
-                )
+                outputs = self.model(inputs, attention_mask=attention_mask)
                 predictions.extend(outputs)
 
         return predictions

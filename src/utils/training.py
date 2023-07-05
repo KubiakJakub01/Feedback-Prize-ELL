@@ -4,6 +4,7 @@ Module with training utilities.
 
 import os
 import sys
+import random
 import logging
 from pathlib import Path
 
@@ -14,6 +15,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+
+from .metrics import Metric
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -39,6 +42,7 @@ class Trainer:
         num_warmup_steps: int,
         log_step: int,
         save_step: int,
+        metrics: list[Metric],
         max_grad_norm: float,
         f16: bool = False,
     ):
@@ -59,6 +63,7 @@ class Trainer:
             num_warmup_steps: Number of warmup steps for scheduler.
             log_step: Number of steps between logging.
             save_step: Number of steps between saving.
+            metrics: List of metrics to use for training.
             max_grad_norm: Maximum value for gradient clipping.
             f16: Whether to use float16.
         """
@@ -76,6 +81,7 @@ class Trainer:
         self.num_warmup_steps = num_warmup_steps
         self.log_step = log_step
         self.save_step = save_step
+        self.metrics = metrics
         self.max_grad_norm = max_grad_norm
         self.f16 = f16
 
@@ -132,6 +138,9 @@ class Trainer:
         # Calculate loss
         loss = self.loss_fn(logits, labels)
 
+        # Update metrics
+        [metric.update(logits, labels) for metric in self.metrics]
+
         return loss.item()
 
     def valid_one_epoch(self):
@@ -163,6 +172,18 @@ class Trainer:
 
         # Calculate average loss
         loss /= total_valid_size
+
+        # Compute metrics
+        metric_dict = {}
+        for metric in self.metrics:
+            metric_value = metric.compute()
+            metric_dict[metric.name] = metric_value
+            self.writer.add_scalar(metric.name, metric_value, self.global_step)
+            self.logger.info(f"{metric.name}: {metric_value}")
+            metric.reset()
+
+        # Log sample predictions
+        self.log_sample_predictions()
 
         self.model.train()
 
@@ -282,6 +303,38 @@ class Trainer:
 
         # Load model
         self.model.load_state_dict(torch.load(checkpoint_path / "model.pt"))
+
+    def log_sample_predictions(self, samples_num: int = 4):
+        """
+        Save samples.
+        """
+        # Randomly select samples
+        samples = random.sample(self.valid_data_loader.dataset, samples_num)
+
+        # Get batch
+        input_ids, attention_mask, labels = self.process_batch(samples)
+
+        # Get model outputs
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+
+        self.logger.info("Sample predictions:")
+        for output, label in zip(outputs, labels):
+            self.logger.info(f"Prediction: {output}, label: {label}")
+
+        # Save samples
+        self.log_predictions(outputs, labels)
+
+    def log_predictions(self, predictions, labels):
+        """
+        Save predictions.
+
+        Args:
+            predictions (list): List of predictions.
+            predictions_path (str): Path to predictions file.
+        """
+        # Write predictions with labels to tensorboard
+        for prediction, label in zip(predictions, labels):
+            self.writer.add_scalar("predictions", prediction, label)
 
     def fit(self):
         """
