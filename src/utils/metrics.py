@@ -116,4 +116,44 @@ class MCRMSE(Metric):
         self.correct = 0
         self.total = 0
 
-        
+
+class Accuracy(Metric):
+    """Accuracy metric."""
+
+    def __init__(self):
+        """
+        Initialize metric.
+        """
+        self.name = "accuracy"
+        self.correct = 0
+        self.total = 0
+
+    def __call__(self, predictions, labels):
+        """
+        Compute metric.
+        """
+        # Compute metric
+        predictions = get_grade_from_predictions(predictions)
+        return torch.sum((predictions == labels).float()) / len(labels)
+    
+    def update(self, predictions, labels):
+        """
+        Update metric.
+        """
+        # Compute metric
+        predictions = get_grade_from_predictions(predictions)
+        self.correct += torch.sum((predictions == labels).float())
+        self.total += len(labels)
+
+    def compute(self):
+        """
+        Compute metric.
+        """
+        return self.correct / self.total
+    
+    def reset(self):
+        """
+        Reset metric.
+        """
+        self.correct = 0
+        self.total = 0
