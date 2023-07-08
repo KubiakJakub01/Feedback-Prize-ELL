@@ -40,7 +40,7 @@ def get_grade_from_prediction(prediction: float) -> float:
     return GRADES[np.argmin(np.abs(GRADES - prediction))]
 
 
-def get_grade_from_predictions(predictions: np.ndarray) -> np.ndarray:
+def get_grade_from_predictions(predictions: np.ndarray | torch.tensor) -> np.ndarray:
     """Get nearest grade from predictions
 
     Args:
@@ -48,6 +48,10 @@ def get_grade_from_predictions(predictions: np.ndarray) -> np.ndarray:
 
     Returns:
         np.ndarray: The nearest grade from the predictions."""
+
+    if isinstance(predictions, torch.tensor):
+        predictions = predictions.cpu().numpy()
+
     return np.array(
         [get_grade_from_prediction(prediction) for prediction in predictions]
     )
