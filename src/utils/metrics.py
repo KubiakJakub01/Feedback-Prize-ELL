@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 
 # Import torch and huggingface modules
 import torch
+from torch import Tensor
 
 # Import numpy
 import numpy as np
@@ -40,7 +41,7 @@ def get_grade_from_prediction(prediction: float) -> float:
     return GRADES[np.argmin(np.abs(GRADES - prediction))]
 
 
-def get_grade_from_predictions(predictions: np.ndarray | torch.tensor) -> np.ndarray:
+def get_grade_from_predictions(predictions: np.ndarray | Tensor) -> np.ndarray:
     """Get nearest grade from predictions
 
     Args:
@@ -49,8 +50,11 @@ def get_grade_from_predictions(predictions: np.ndarray | torch.tensor) -> np.nda
     Returns:
         np.ndarray: The nearest grade from the predictions."""
 
-    if isinstance(predictions, torch.tensor):
+    if isinstance(predictions, Tensor):
         predictions = predictions.cpu().numpy()
+
+    assert predictions.ndim == 1, "Predictions must be 1-dimensional." \
+                                    "Now it is {}-dimensional.".format(predictions.ndim)
 
     return np.array(
         [get_grade_from_prediction(prediction) for prediction in predictions]
@@ -161,3 +165,14 @@ class Accuracy(Metric):
         """
         self.correct = 0
         self.total = 0
+
+
+if __name__ == "__main__":
+    # Create dummy data
+    predictions = torch.tensor([1.4, 2.1, 3.7, 4.43, 5.5432])
+
+    # Get grade from predictions
+    grades = get_grade_from_predictions(predictions)
+
+    # Print grades
+    print(grades)
