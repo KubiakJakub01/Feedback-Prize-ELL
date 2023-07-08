@@ -108,7 +108,7 @@ class MCRMSE(Metric):
         """
         # Compute metric
         predictions = get_grade_from_predictions(predictions)
-        self.correct += torch.sum((predictions == labels).float())
+        self.correct += torch.sqrt(torch.mean((predictions - labels) ** 2))
         self.total += len(labels)
 
     def compute(self):
