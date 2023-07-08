@@ -139,7 +139,9 @@ class Trainer:
         loss = self.loss_fn(logits, labels)
 
         # Update metrics
-        [metric.update(logits, labels) for metric in self.metrics]
+        for metric in self.metrics:
+            for prediction, label in zip(logits, labels):
+                metric.update(prediction, label)
 
         return loss.item()
 
