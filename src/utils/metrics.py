@@ -41,7 +41,7 @@ def get_grade_from_prediction(prediction: float) -> float:
     return GRADES[np.argmin(np.abs(GRADES - prediction))]
 
 
-def get_grade_from_predictions(predictions: np.ndarray | Tensor) -> np.ndarray:
+def get_grade_from_predictions(predictions: np.ndarray | Tensor) -> Tensor:
     """Get nearest grade from predictions
 
     Args:
@@ -50,13 +50,10 @@ def get_grade_from_predictions(predictions: np.ndarray | Tensor) -> np.ndarray:
     Returns:
         np.ndarray: The nearest grade from the predictions."""
 
-    if isinstance(predictions, Tensor):
-        predictions = predictions.cpu().numpy()
-
     assert predictions.ndim == 1, "Predictions must be 1-dimensional." \
                                     "Now it is {}-dimensional.".format(predictions.ndim)
 
-    return np.array(
+    return Tensor(
         [get_grade_from_prediction(prediction) for prediction in predictions]
     )
 
