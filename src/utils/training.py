@@ -16,7 +16,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from .metrics import Metric
+from .metrics import Metric, get_grade_from_predictions
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -187,6 +187,7 @@ class Trainer:
         with tqdm(
             self.valid_data_loader,
             desc=f"Validating after {self.global_step + 1} steps",
+            total=total_valid_size,
         ) as pbar:
             for i, batch in enumerate(pbar):
                 # Validate model for one step
@@ -355,7 +356,10 @@ class Trainer:
         """
         # Write predictions with labels to tensorboard
         for prediction, label in zip(predictions, labels):
-            logger.info(f"Prediction: {prediction}, label: {label}")
+            gredes = get_grade_from_predictions(prediction)
+            logger.info(f"Prediction: {prediction.numpy()}, label: {label.numpy()}, grade: {gredes.numpy()}")
+            self.writer.add_histogram("predictions/labels", label, self.global_step)
+            self.writer.add_histogram("predictions/grades", gredes, self.global_step)
 
     def fit(self):
         """
@@ -363,6 +367,6 @@ class Trainer:
         """
         logger.info("Start training")
         for epoch in range(self.num_epochs):
-            logger.info("Epoch {}/{}".format(epoch + 1, self.num_epochs))
+            logger.info("Epoch {}/{}".format(epoch, self.num_epochs))
             self.train_one_epoch(epoch)
         logger.info("Training finished")
