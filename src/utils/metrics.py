@@ -16,7 +16,7 @@ import numpy as np
 # Set up logging
 logger = logging.getLogger(__name__)
 
-GRADES = np.arange(0.0, 5.0, 0.5)
+GRADES = Tensor(np.arange(0.0, 5.0, 0.5))
 
 
 def load_metrics(metrics: list[str]):
@@ -166,10 +166,29 @@ class Accuracy(Metric):
 
 if __name__ == "__main__":
     # Create dummy data
-    predictions = torch.tensor([1.4, 2.1, 3.7, 4.43, 5.5432])
+    predictions = Tensor([1.4, 2.1, 3.7, 4.43, 5.5432])
+    labels = Tensor([1.5, 2.0, 3.5, 4.5, 5.5])
 
     # Get grade from predictions
     grades = get_grade_from_predictions(predictions)
 
     # Print grades
     print(grades)
+
+    # Test MCRMSE
+    mcrmse = MCRMSE()
+
+    # Compute metric
+    metric = mcrmse(predictions, labels)
+
+    # Print metric
+    print(metric)
+
+    # Update metric
+    mcrmse.update(predictions, labels)
+
+    # Compute metric
+    metric = mcrmse.compute()
+
+    # Print metric
+    print(metric)

@@ -188,9 +188,13 @@ class Trainer:
             self.valid_data_loader,
             desc=f"Validating after {self.global_step + 1} steps",
         ) as pbar:
-            for batch in pbar:
+            for i, batch in enumerate(pbar):
                 # Validate model for one step
                 loss += self.valid_one_step(batch)
+
+                # Log sample predictions
+                if i == 0:
+                    self.log_sample_predictions(batch)
 
                 # Update progress bar
                 pbar.set_postfix({"loss": loss / (self.global_step + 1)})
@@ -200,16 +204,7 @@ class Trainer:
         loss /= total_valid_size
 
         # Compute metrics
-        metric_dict = {}
-        for metric in self.metrics:
-            metric_value = metric.compute()
-            metric_dict[metric.name] = metric_value
-            self.writer.add_scalar(metric.name, metric_value, self.global_step)
-            logger.info(f"{metric.name}: {metric_value}")
-            metric.reset()
-
-        # Log sample predictions
-        self.log_sample_predictions()
+        self.compute_metrics()
 
         self.model.train()
 
@@ -330,25 +325,29 @@ class Trainer:
         # Load model
         self.model.load_state_dict(torch.load(checkpoint_path / "model.pt"))
 
-    def log_sample_predictions(self, samples_num: int = 4):
+    def compute_metrics(self):
+        """Compute and reset metrics"""
+        metric_dict = {}
+        for metric in self.metrics:
+            metric_value = metric.compute()
+            metric_dict[metric.name] = metric_value
+            self.writer.add_scalar(metric.name, metric_value, self.global_step)
+            logger.info(f"{metric.name}: {metric_value}")
+            metric.reset()
+
+    def log_sample_predictions(self, batch):
         """
-        Save samples.
+        Log sample predictions.
         """
-        # Randomly select samples
-        samples = random.sample(self.valid_data_loader.dataset, samples_num)
+        # Inference
+        logits, labels = self.inference_fn(batch)
 
-        # Get batch
-        input_ids, attention_mask, labels = self.process_batch(samples)
+        # Log predictions
+        self.log_predictions(logits, labels)
+        
 
-        # Get model outputs
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-
-        self.logger.info("Sample predictions:")
-        for output, label in zip(outputs, labels):
-            self.logger.info(f"Prediction: {output}, label: {label}")
-
-        # Save samples
-        self.log_predictions(outputs, labels)
+        # Log sample predictions
+        self.log_predictions
 
     def log_predictions(self, predictions, labels):
         """
