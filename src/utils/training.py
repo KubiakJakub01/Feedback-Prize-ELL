@@ -345,9 +345,6 @@ class Trainer:
         # Log predictions
         self.log_predictions(logits, labels)
 
-        # Log sample predictions
-        self.log_predictions
-
     def log_predictions(self, predictions, labels):
         """
         Save predictions.
@@ -358,7 +355,7 @@ class Trainer:
         """
         # Write predictions with labels to tensorboard
         for prediction, label in zip(predictions, labels):
-            self.writer.add_scalar("predictions", prediction, label)
+            logger.info(f"Prediction: {prediction}, label: {label}")
 
     def fit(self):
         """
