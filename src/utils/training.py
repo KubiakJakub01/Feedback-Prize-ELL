@@ -272,7 +272,7 @@ class Trainer:
                 # Log training loss
                 if self.global_step % self.log_step == 0:
                     self.writer.add_scalar(
-                        "train_loss", self.train_loss, self.global_step
+                        "train_loss", self.train_loss / self.global_step, self.global_step
                     )
 
                 # Validate model
