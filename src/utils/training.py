@@ -116,7 +116,7 @@ class Trainer:
         )
 
         return input_ids, attention_mask, labels
-    
+
     def update_metrics(self, logits, labels) -> None:
         """Update metrics.
         
@@ -125,12 +125,12 @@ class Trainer:
             labels (torch.Tensor): Labels."""
         logits = logits.cpu()
         labels = labels.cpu()
-        
+
         # Update metrics
         for metric in self.metrics:
             for prediction, label in zip(logits, labels):
                 metric.update(prediction, label)
-    
+
     @torch.no_grad()
     def inference_fn(self, batch):
         """Inference function for one step.
@@ -145,7 +145,7 @@ class Trainer:
 
         # Get model outputs
         outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-        
+
         return outputs, labels
 
     def valid_one_step(self, batch):
@@ -344,7 +344,6 @@ class Trainer:
 
         # Log predictions
         self.log_predictions(logits, labels)
-        
 
         # Log sample predictions
         self.log_predictions

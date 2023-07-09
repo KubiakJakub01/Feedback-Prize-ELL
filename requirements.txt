@@ -1,15 +1,15 @@
+# Install huggingface transformers
+transformers>=4.26.0
+
+# Tensorboard
+tensorboard>=2.13.0
+
+# Install other dependencies
+scikit-learn>=1.2.2
+wandb>=0.15.4
+
 # Pytorch with cuda
 torch>=1.13.1
 torchaudio>=0.13.1
 torchvision>=0.14.1 
 --index-url https://download.pytorch.org/whl/cu117
-
-# Install huggingface transformers
-transformers==4.26.0
-
-# Tensorboard
-tensorboard==2.13.0
-
-# Install other dependencies
-scikit-learn==1.2.2
-wandb==0.15.4

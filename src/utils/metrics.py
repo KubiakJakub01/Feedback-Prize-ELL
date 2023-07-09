@@ -52,6 +52,9 @@ def get_grade_from_predictions(predictions: np.ndarray | Tensor) -> Tensor:
 
     assert predictions.ndim == 1, "Predictions must be 1-dimensional." \
                                     "Now it is {}-dimensional.".format(predictions.ndim)
+    
+    if isinstance(predictions, np.ndarray):
+        predictions = Tensor(predictions)
 
     return Tensor(
         [get_grade_from_prediction(prediction) for prediction in predictions]
@@ -104,8 +107,7 @@ class MCRMSE(Metric):
         Update metric.
         """
         # Compute metric
-        predictions = get_grade_from_predictions(predictions)
-        self.correct += torch.sqrt(torch.mean((predictions - labels) ** 2))
+        self.correct += self(predictions, labels)
         self.total += len(labels)
 
     def compute(self):
