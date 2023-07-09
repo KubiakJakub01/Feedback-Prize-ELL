@@ -172,16 +172,18 @@ class CustomModel(nn.Module):
         )
         if self.cfg.pooling == "mean":
             self.pooling = MeanPooling()
+            self.fc = nn.Linear(self.cfg.hidden_size, self.cfg.num_classes)
         elif self.cfg.pooling == "weighted":
             self.pooling = WeightedLayerPooling(self.cfg.num_layers)
+            self.fc = nn.Linear(self.cfg.hidden_size, self.cfg.num_classes)
         elif self.cfg.pooling == "lstm":
             self.pooling = LSTMPooling(self.cfg.hidden_size)
+            self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
         elif self.cfg.pooling == "concat":
             self.pooling = ConcatPooling(self.cfg.hidden_size)
+            self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
         else:
             raise ValueError("Invalid pooling type")
-
-        self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
 
     def feature(self, **inputs):
         outputs = self.model(**inputs)
