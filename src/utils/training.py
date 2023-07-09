@@ -1,21 +1,20 @@
 """
 Module with training utilities.
 """
-
-import os
-import sys
-import random
+# Import standard library
 import logging
 from pathlib import Path
 
 from tqdm import tqdm
 
+# Import torch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+# Import custom modules
 from .metrics import Metric, get_grade_from_predictions
 
 # Set up logging
@@ -119,7 +118,7 @@ class Trainer:
 
     def update_metrics(self, logits, labels) -> None:
         """Update metrics.
-        
+
         Args:
             logits (torch.Tensor): Logits.
             labels (torch.Tensor): Labels."""
@@ -134,10 +133,10 @@ class Trainer:
     @torch.no_grad()
     def inference_fn(self, batch):
         """Inference function for one step.
-        
+
         Args:
             batch (dict): Batch dictionary.
-            
+
         Returns:
             tuple: Tuple of model outputs and labels."""
         # Get batch
@@ -189,16 +188,16 @@ class Trainer:
             desc=f"Validating after {self.global_step + 1} steps",
             total=total_valid_size,
         ) as pbar:
-            for i, batch in enumerate(pbar):
+            for i, batch in enumerate(pbar, 1):
                 # Validate model for one step
                 loss += self.valid_one_step(batch)
 
                 # Log sample predictions
-                if i == 0:
+                if i == 1:
                     self.log_sample_predictions(batch)
 
                 # Update progress bar
-                pbar.set_postfix({"loss": loss / (self.global_step + 1)})
+                pbar.set_postfix({"loss": loss / i})
                 pbar.update()
 
         # Calculate average loss
@@ -230,9 +229,9 @@ class Trainer:
         # Get model outputs
         with torch.cuda.amp.autocast():
             outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-            # Calculate loss
             logger.debug(f"labels: {labels} (shape: {labels.shape})")
             logger.debug(f"outputs: {outputs} (shape: {outputs.shape})")
+            # Calculate loss
             loss = self.loss_fn(outputs, labels)
 
         # Backpropagate loss
@@ -267,13 +266,14 @@ class Trainer:
                 # Train model for one step
                 self.train_loss += self.train_one_step(batch)
 
-                # Update progress bar
-                pbar.set_postfix({"loss": self.train_loss / (self.global_step + 1)})
-                pbar.update()
+                # Set loss postfix
+                pbar.set_postfix({"loss": self.train_loss / self.global_step})
 
                 # Log training loss
                 if self.global_step % self.log_step == 0:
-                    self.writer.add_scalar("loss", self.train_loss, self.global_step)
+                    self.writer.add_scalar(
+                        "train_loss", self.train_loss, self.global_step
+                    )
 
                 # Validate model
                 if self.global_step % self.validation_step == 0:
@@ -285,6 +285,9 @@ class Trainer:
                 # Save model
                 if self.global_step % self.save_step == 0:
                     self.save_model()
+
+                # Update progress bar
+                pbar.update()
 
     def save_model(self):
         """
@@ -343,6 +346,9 @@ class Trainer:
         # Inference
         logits, labels = self.inference_fn(batch)
 
+        logits = logits.cpu()
+        labels = labels.cpu()
+
         # Log predictions
         self.log_predictions(logits, labels)
 
@@ -357,7 +363,9 @@ class Trainer:
         # Write predictions with labels to tensorboard
         for prediction, label in zip(predictions, labels):
             gredes = get_grade_from_predictions(prediction)
-            logger.info(f"Prediction: {prediction.numpy()}, label: {label.numpy()}, grade: {gredes.numpy()}")
+            logger.info(
+                f"Prediction: {prediction.numpy()}, label: {label.numpy()}, grade: {gredes.numpy()}"
+            )
             self.writer.add_histogram("predictions/labels", label, self.global_step)
             self.writer.add_histogram("predictions/grades", gredes, self.global_step)
 

@@ -31,6 +31,7 @@ def load_metrics(metrics: list[str]):
 
     return metrics_list
 
+
 def get_grade_from_prediction(prediction: float) -> float:
     """Get nearest grade from prediction
     Args:
@@ -50,15 +51,16 @@ def get_grade_from_predictions(predictions: np.ndarray | Tensor) -> Tensor:
     Returns:
         np.ndarray: The nearest grade from the predictions."""
 
-    assert predictions.ndim == 1, "Predictions must be 1-dimensional." \
-                                    "Now it is {}-dimensional.".format(predictions.ndim)
-    
+    assert (
+        predictions.ndim == 1
+    ), "Predictions must be 1-dimensional." "Now it is {}-dimensional.".format(
+        predictions.ndim
+    )
+
     if isinstance(predictions, np.ndarray):
         predictions = Tensor(predictions)
 
-    return Tensor(
-        [get_grade_from_prediction(prediction) for prediction in predictions]
-    )
+    return Tensor([get_grade_from_prediction(prediction) for prediction in predictions])
 
 
 class Metric(ABC):
@@ -69,15 +71,15 @@ class Metric(ABC):
     @abstractmethod
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return super().__call__(*args, **kwds)
-    
+
     @abstractmethod
     def update(self, *args: Any, **kwds: Any) -> Any:
         return super().__call__(*args, **kwds)
-    
+
     @abstractmethod
     def compute(self, *args: Any, **kwds: Any) -> Any:
         return super().__call__(*args, **kwds)
-    
+
     @abstractmethod
     def reset(self, *args: Any, **kwds: Any) -> Any:
         return super().__call__(*args, **kwds)
@@ -101,7 +103,7 @@ class MCRMSE(Metric):
         # Compute metric
         predictions = get_grade_from_predictions(predictions)
         return torch.sqrt(torch.mean((predictions - labels) ** 2))
-    
+
     def update(self, predictions, labels):
         """
         Update metric.
@@ -115,7 +117,7 @@ class MCRMSE(Metric):
         Compute metric.
         """
         return self.correct / self.total
-    
+
     def reset(self):
         """
         Reset metric.
@@ -142,7 +144,7 @@ class Accuracy(Metric):
         # Compute metric
         predictions = get_grade_from_predictions(predictions)
         return torch.sum((predictions == labels).float()) / len(labels)
-    
+
     def update(self, predictions, labels):
         """
         Update metric.
@@ -157,7 +159,7 @@ class Accuracy(Metric):
         Compute metric.
         """
         return self.correct / self.total
-    
+
     def reset(self):
         """
         Reset metric.

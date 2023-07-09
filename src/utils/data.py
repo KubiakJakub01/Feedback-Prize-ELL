@@ -28,7 +28,7 @@ def create_data_loader(
     max_length: int = 512,
     batch_size: int = 8,
     num_workers: int = 2,
-    shuffle: bool= True,
+    shuffle: bool = True,
     pin_memory: bool = True,
     drop_last: bool = False,
     ddp: bool = False,

@@ -109,7 +109,7 @@ class Inference:
     def get_predictions(self, test_loader):
         """
         Get predictions from a model.
- 
+
         Args:
             model: Model to evaluate.
             test_loader: Test dataloader.

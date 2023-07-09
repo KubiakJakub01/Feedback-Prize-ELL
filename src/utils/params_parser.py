@@ -271,7 +271,7 @@ class EvaluationParams:
     )
     batch_size: int = field(
         metadata={"help": "The batch size to use for evaluation. Defaults to 8"},
-        default=8
+        default=8,
     )
     num_workers: int = field(
         metadata={
@@ -323,7 +323,7 @@ def load_params(params_dict: dict) -> Params:
 
     Args:
         params_dict (dict): The dictionary containing the parameters.
-    
+
     Returns:
         Params: The parameters from the dictionary.
     """
@@ -342,7 +342,7 @@ def get_params(file_path) -> Params:
 
     Args:
         file_path (str): Path to yaml or json file containing parameters.
-    
+
     Returns:
         Params: The parameters from the file.
     """
