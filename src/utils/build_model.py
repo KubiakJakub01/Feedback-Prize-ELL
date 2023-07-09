@@ -171,9 +171,6 @@ class CustomModel(nn.Module):
             self.cfg.model_checkpoint, output_hidden_states=True
         )
         
-        if self.cfg.freeze:
-            self.freeze()
-
         if self.cfg.pooling == "mean":
             self.pooling = MeanPooling()
             self.fc = nn.Linear(self.cfg.hidden_size, self.cfg.num_classes)
@@ -191,6 +188,9 @@ class CustomModel(nn.Module):
         
         # Initialize weights
         self.fc.apply(self._init_weight)
+
+        if self.cfg.freeze:
+            self.freeze()
 
     def feature(self, **inputs):
         outputs = self.model(**inputs)
@@ -213,6 +213,8 @@ class CustomModel(nn.Module):
         for param in self.model.parameters():
             param.requires_grad = False
         for param in self.fc.parameters():
+            param.requires_grad = True
+        for param in self.pooling.parameters():
             param.requires_grad = True
 
     def _init_weight(self, module):
