@@ -116,8 +116,38 @@ class Trainer:
         )
 
         return input_ids, attention_mask, labels
-
+    
+    def update_metrics(self, logits, labels) -> None:
+        """Update metrics.
+        
+        Args:
+            logits (torch.Tensor): Logits.
+            labels (torch.Tensor): Labels."""
+        logits = logits.cpu()
+        labels = labels.cpu()
+        
+        # Update metrics
+        for metric in self.metrics:
+            for prediction, label in zip(logits, labels):
+                metric.update(prediction, label)
+    
     @torch.no_grad()
+    def inference_fn(self, batch):
+        """Inference function for one step.
+        
+        Args:
+            batch (dict): Batch dictionary.
+            
+        Returns:
+            tuple: Tuple of model outputs and labels."""
+        # Get batch
+        input_ids, attention_mask, labels = self.process_batch(batch)
+
+        # Get model outputs
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+        
+        return outputs, labels
+
     def valid_one_step(self, batch):
         """
         Method for validating model for one step.
@@ -128,20 +158,14 @@ class Trainer:
         Returns:
             float: Validation loss.
         """
-        # Get batch
-        input_ids, attention_mask, labels = self.process_batch(batch)
-
-        # Get model outputs
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-        logits = outputs
+        # Inference
+        logits, labels = self.inference_fn(batch)
 
         # Calculate loss
         loss = self.loss_fn(logits, labels)
 
         # Update metrics
-        for metric in self.metrics:
-            for prediction, label in zip(logits, labels):
-                metric.update(prediction, label)
+        self.update_metrics(logits, labels)
 
         return loss.item()
 
@@ -181,7 +205,7 @@ class Trainer:
             metric_value = metric.compute()
             metric_dict[metric.name] = metric_value
             self.writer.add_scalar(metric.name, metric_value, self.global_step)
-            self.logger.info(f"{metric.name}: {metric_value}")
+            logger.info(f"{metric.name}: {metric_value}")
             metric.reset()
 
         # Log sample predictions
