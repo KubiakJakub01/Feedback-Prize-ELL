@@ -170,6 +170,10 @@ class CustomModel(nn.Module):
         self.model = BertForSequenceClassification.from_pretrained(
             self.cfg.model_checkpoint, output_hidden_states=True
         )
+        
+        if self.cfg.freeze:
+            self.freeze()
+
         if self.cfg.pooling == "mean":
             self.pooling = MeanPooling()
             self.fc = nn.Linear(self.cfg.hidden_size, self.cfg.num_classes)
@@ -184,6 +188,9 @@ class CustomModel(nn.Module):
             self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
         else:
             raise ValueError("Invalid pooling type")
+        
+        # Initialize weights
+        self.fc.apply(self._init_weight)
 
     def feature(self, **inputs):
         outputs = self.model(**inputs)

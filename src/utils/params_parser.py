@@ -80,6 +80,12 @@ class ModelConfig:
         },
         default="bert",
     )
+    freeze: bool = field(
+        metadata={
+            "help": "Whether to freeze the pre-trained model. Defaults to False."
+        },
+        default=False,
+    )
     pooling: Literal["mean", "weighted", "lstm", "concat"] = field(
         metadata={
             "help": "The type of pooling to use for the model. Defaults to mean."
