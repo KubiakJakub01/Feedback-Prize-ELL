@@ -2,9 +2,6 @@
 Module with utilities for distributed training.
 """
 # Import standard library
-import os
-import sys
-import logging
 from datetime import datetime
 
 # Import distributed torch

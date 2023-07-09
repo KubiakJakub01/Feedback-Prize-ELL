@@ -170,7 +170,7 @@ class CustomModel(nn.Module):
         self.model = BertForSequenceClassification.from_pretrained(
             self.cfg.model_checkpoint, output_hidden_states=True
         )
-        
+
         if self.cfg.pooling == "mean":
             self.pooling = MeanPooling()
             self.fc = nn.Linear(self.cfg.hidden_size, self.cfg.num_classes)
@@ -185,7 +185,7 @@ class CustomModel(nn.Module):
             self.fc = nn.Linear(self.cfg.hidden_size * 2, self.cfg.num_classes)
         else:
             raise ValueError("Invalid pooling type")
-        
+
         # Initialize weights
         self.fc.apply(self._init_weight)
 
@@ -193,23 +193,46 @@ class CustomModel(nn.Module):
             self.freeze()
 
     def feature(self, **inputs):
+        """Get features from pretrained model
+
+        Args:
+            inputs: Input data
+
+        Returns:
+            Pooled output"""
         outputs = self.model(**inputs)
         last_hidden_states = outputs.hidden_states[-1]
         logger.debug("Last hidden states shape: %s", last_hidden_states.shape)
         return self.pooling(last_hidden_states, inputs["attention_mask"])
 
     def forward(self, **inputs):
+        """Forward pass
+
+        Args:
+            inputs: Input data
+
+        Returns:
+            Output logits"""
         pooled_output = self.feature(**inputs)
         logger.debug("Pooled output shape: %s", pooled_output.shape)
         return self.fc(pooled_output)
 
     def save(self, path):
+        """Save model to path
+
+        Args:
+            path: Path to save model"""
         torch.save(self.state_dict(), path)
 
     def load(self, path):
+        """Load model from path
+
+        Args:
+            path: Path to load model"""
         self.load_state_dict(torch.load(path))
 
     def freeze(self):
+        """Freeze pretrained model"""
         for param in self.model.parameters():
             param.requires_grad = False
         for param in self.fc.parameters():
@@ -218,6 +241,7 @@ class CustomModel(nn.Module):
             param.requires_grad = True
 
     def _init_weight(self, module):
+        """Initialize weights"""
         if isinstance(module, nn.Linear):
             module.weight.data.normal_(mean=0.0)
             if module.bias is not None:
