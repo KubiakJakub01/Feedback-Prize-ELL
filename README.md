@@ -101,7 +101,7 @@ Evaluation model architecture have to be the same as the model architecture used
 
 My approach based on the use of the pretrained language models. I used the huggingface [transformers](https://huggingface.co/docs/transformers/index) framework to load BERT or any other transformers model. Then I used the pretrained model as an encoder and added a pooling layer followed by a linear layer for each of the six measures. I tried different pooling strategies: mean pooling, max pooling, and mean-max pooling. I also tried different learning rates and batch sizes. I used the AdamW optimizer with the default parameters. I used smooth_l1 loss function. Also I made same experiment with freezing the encoder and training only the top layers.
 
-## Experiments
+### Experiments
 
 From the experiments I made, I found that the best results were obtained using the `bert-base-uncased` model with `LSTM` pooling. The best results were obtained with the following parameters:
 
