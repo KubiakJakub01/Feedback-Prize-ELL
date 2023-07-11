@@ -1,5 +1,20 @@
 # Feedback-Prize-ELL
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+- [Training and Evaluating Models](#training-and-evaluating-models)
+    - [Parameters](#parameters)
+    - [Training and Evaluating Models](#training-and-evaluating-models-1)
+    - [Evaluations](#evaluations)
+- [My approach](#my-approach)
+    - [Experiments](#experiments)
+    - [Metrics](#metrics)
+    - [Results](#results)
+    - [Submission](#submission)
+
 ## Overview
 
 This repository is a code repository created for the Kaggle competition aimed at assessing the language proficiency of 8th-12th grade Feedback Prize English Language Learners ([ELLs](https://www.kaggle.com/competitions/feedback-prize-english-language-learning/overview)). The repository contains code and models developed by participants to improve automated feedback tools for ELLs using machine learning, natural language processing, and educational data analytics.
