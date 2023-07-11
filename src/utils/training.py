@@ -1,22 +1,21 @@
 """
 Module with training utilities.
 """
-
-import os
-import sys
-import random
+# Import standard library
 import logging
 from pathlib import Path
 
 from tqdm import tqdm
 
+# Import torch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from .metrics import Metric
+# Import custom modules
+from .metrics import Metric, get_grade_from_predictions
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -117,7 +116,37 @@ class Trainer:
 
         return input_ids, attention_mask, labels
 
+    def update_metrics(self, logits, labels) -> None:
+        """Update metrics.
+
+        Args:
+            logits (torch.Tensor): Logits.
+            labels (torch.Tensor): Labels."""
+        logits = logits.cpu()
+        labels = labels.cpu()
+
+        # Update metrics
+        for metric in self.metrics:
+            for prediction, label in zip(logits, labels):
+                metric.update(prediction, label)
+
     @torch.no_grad()
+    def inference_fn(self, batch):
+        """Inference function for one step.
+
+        Args:
+            batch (dict): Batch dictionary.
+
+        Returns:
+            tuple: Tuple of model outputs and labels."""
+        # Get batch
+        input_ids, attention_mask, labels = self.process_batch(batch)
+
+        # Get model outputs
+        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+
+        return outputs, labels
+
     def valid_one_step(self, batch):
         """
         Method for validating model for one step.
@@ -128,20 +157,14 @@ class Trainer:
         Returns:
             float: Validation loss.
         """
-        # Get batch
-        input_ids, attention_mask, labels = self.process_batch(batch)
-
-        # Get model outputs
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-        logits = outputs
+        # Inference
+        logits, labels = self.inference_fn(batch)
 
         # Calculate loss
         loss = self.loss_fn(logits, labels)
 
         # Update metrics
-        for metric in self.metrics:
-            for prediction, label in zip(logits, labels):
-                metric.update(prediction, label)
+        self.update_metrics(logits, labels)
 
         return loss.item()
 
@@ -163,29 +186,25 @@ class Trainer:
         with tqdm(
             self.valid_data_loader,
             desc=f"Validating after {self.global_step + 1} steps",
+            total=total_valid_size,
         ) as pbar:
-            for batch in pbar:
+            for i, batch in enumerate(pbar, 1):
                 # Validate model for one step
                 loss += self.valid_one_step(batch)
 
+                # Log sample predictions
+                if i == 1:
+                    self.log_sample_predictions(batch)
+
                 # Update progress bar
-                pbar.set_postfix({"loss": loss / (self.global_step + 1)})
+                pbar.set_postfix({"loss": loss / i})
                 pbar.update()
 
         # Calculate average loss
         loss /= total_valid_size
 
         # Compute metrics
-        metric_dict = {}
-        for metric in self.metrics:
-            metric_value = metric.compute()
-            metric_dict[metric.name] = metric_value
-            self.writer.add_scalar(metric.name, metric_value, self.global_step)
-            self.logger.info(f"{metric.name}: {metric_value}")
-            metric.reset()
-
-        # Log sample predictions
-        self.log_sample_predictions()
+        self.compute_metrics()
 
         self.model.train()
 
@@ -210,9 +229,9 @@ class Trainer:
         # Get model outputs
         with torch.cuda.amp.autocast():
             outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-            # Calculate loss
             logger.debug(f"labels: {labels} (shape: {labels.shape})")
             logger.debug(f"outputs: {outputs} (shape: {outputs.shape})")
+            # Calculate loss
             loss = self.loss_fn(outputs, labels)
 
         # Backpropagate loss
@@ -247,13 +266,16 @@ class Trainer:
                 # Train model for one step
                 self.train_loss += self.train_one_step(batch)
 
-                # Update progress bar
-                pbar.set_postfix({"loss": self.train_loss / (self.global_step + 1)})
-                pbar.update()
+                # Set loss postfix
+                pbar.set_postfix({"loss": self.train_loss / self.global_step})
 
                 # Log training loss
                 if self.global_step % self.log_step == 0:
-                    self.writer.add_scalar("loss", self.train_loss, self.global_step)
+                    self.writer.add_scalar(
+                        "train_loss",
+                        self.train_loss / self.global_step,
+                        self.global_step,
+                    )
 
                 # Validate model
                 if self.global_step % self.validation_step == 0:
@@ -265,6 +287,9 @@ class Trainer:
                 # Save model
                 if self.global_step % self.save_step == 0:
                     self.save_model()
+
+                # Update progress bar
+                pbar.update()
 
     def save_model(self):
         """
@@ -306,25 +331,28 @@ class Trainer:
         # Load model
         self.model.load_state_dict(torch.load(checkpoint_path / "model.pt"))
 
-    def log_sample_predictions(self, samples_num: int = 4):
+    def compute_metrics(self):
+        """Compute and reset metrics"""
+        metric_dict = {}
+        for metric in self.metrics:
+            metric_value = metric.compute()
+            metric_dict[metric.name] = metric_value
+            self.writer.add_scalar(metric.name, metric_value, self.global_step)
+            logger.info(f"{metric.name}: {metric_value}")
+            metric.reset()
+
+    def log_sample_predictions(self, batch):
         """
-        Save samples.
+        Log sample predictions.
         """
-        # Randomly select samples
-        samples = random.sample(self.valid_data_loader.dataset, samples_num)
+        # Inference
+        logits, labels = self.inference_fn(batch)
 
-        # Get batch
-        input_ids, attention_mask, labels = self.process_batch(samples)
+        logits = logits.cpu()
+        labels = labels.cpu()
 
-        # Get model outputs
-        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-
-        self.logger.info("Sample predictions:")
-        for output, label in zip(outputs, labels):
-            self.logger.info(f"Prediction: {output}, label: {label}")
-
-        # Save samples
-        self.log_predictions(outputs, labels)
+        # Log predictions
+        self.log_predictions(logits, labels)
 
     def log_predictions(self, predictions, labels):
         """
@@ -336,7 +364,12 @@ class Trainer:
         """
         # Write predictions with labels to tensorboard
         for prediction, label in zip(predictions, labels):
-            self.writer.add_scalar("predictions", prediction, label)
+            gredes = get_grade_from_predictions(prediction)
+            logger.info(
+                f"Prediction: {prediction.numpy()}, label: {label.numpy()}, grade: {gredes.numpy()}"
+            )
+            self.writer.add_histogram("predictions/labels", label, self.global_step)
+            self.writer.add_histogram("predictions/grades", gredes, self.global_step)
 
     def fit(self):
         """
@@ -344,6 +377,6 @@ class Trainer:
         """
         logger.info("Start training")
         for epoch in range(self.num_epochs):
-            logger.info("Epoch {}/{}".format(epoch + 1, self.num_epochs))
+            logger.info("Epoch {}/{}".format(epoch, self.num_epochs))
             self.train_one_epoch(epoch)
         logger.info("Training finished")

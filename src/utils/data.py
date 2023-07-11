@@ -1,18 +1,13 @@
 """
 Module for data loading and preprocessing.
 """
-
-import re
-import sys
 import logging
-from pathlib import Path
-from dataclasses import dataclass
 
 import pandas as pd
 import numpy as np
 
 from transformers import DataCollatorWithPadding
-from torch import tensor, float32, int64
+from torch import tensor, float32
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
@@ -28,7 +23,7 @@ def create_data_loader(
     max_length: int = 512,
     batch_size: int = 8,
     num_workers: int = 2,
-    shuffle: bool= True,
+    shuffle: bool = True,
     pin_memory: bool = True,
     drop_last: bool = False,
     ddp: bool = False,

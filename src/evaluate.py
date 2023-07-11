@@ -1,14 +1,12 @@
 """Script for running evaluation of the model"""
-import os
 import sys
 import logging
-from pathlib import Path
 from datetime import datetime
 
 from utils.data import create_data_loader
 from utils.model_utils import get_model_and_tokenizer, get_device
 from utils.inference_utils import Inference
-from utils.params_parser import EvaluationParams, ModelConfig, Params, get_params
+from utils.params_parser import Params, get_params
 
 
 logging.basicConfig(

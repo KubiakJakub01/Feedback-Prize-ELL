@@ -12,6 +12,7 @@ model_params:
   config:
     model_name: custom_model
     model_checkpoint: bert-base-uncased
+    freeze: True
     pooling: lstm
     num_layers: 2
     hidden_size: 768
